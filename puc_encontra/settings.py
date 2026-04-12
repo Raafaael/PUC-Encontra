@@ -106,7 +106,7 @@ LOGOUT_REDIRECT_URL = '/'
 
 # Backend customizado: permite login com username ou e-mail
 AUTHENTICATION_BACKENDS = [
-    'core.backends.EmailOuUsernameBackend',
+    'core.backends.EmailOrUsernameBackend',
 ]
 
 # E-mail: Gmail SMTP
