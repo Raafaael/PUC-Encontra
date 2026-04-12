@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load core_tags %}
+
+{% block title %}{{ obj.titulo }} - PUC Encontra{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="{% url 'perdidos_publico' %}">Objetos Perdidos</a> &raquo; {{ obj.titulo }}
+</div>
+
+<div class="detail-card">
+    <div class="detail-header">
+        <h1>{{ obj.titulo }}</h1>
+        <span class="card-status {{ obj.status|status_class }}">{{ obj.get_status_display }}</span>
+    </div>
+
+    {% if obj.imagem %}
+    <div class="detail-image"><img src="{{ obj.imagem.url }}" alt="{{ obj.titulo }}"></div>
+    {% endif %}
+
+    <div class="detail-body">
+        <div class="detail-info-grid">
+            <div class="detail-info">
+                <strong>Categoria:</strong> {{ obj.categoria|default:'Não informada' }}
+            </div>
+            <div class="detail-info">
+                <strong>Local:</strong> {{ obj.local_perdido|default:'Não informado' }}
+            </div>
+            <div class="detail-info">
+                <strong>Data da perda:</strong> {{ obj.data_perda }}
+            </div>
+            <div class="detail-info">
+                <strong>Registrado em:</strong> {{ obj.data_registro|date:"d/m/Y H:i" }}
+            </div>
+            <div class="detail-info">
+                <strong>Registrado por:</strong> {{ obj.usuario.get_full_name|default:obj.usuario.username }}
+            </div>
+        </div>
+
+        <div class="detail-description">
+            <h2>Descrição</h2>
+            <p>{{ obj.descricao|linebreaksbr }}</p>
+        </div>
+
+        {% if mostrar_contato %}
+        <div class="info-box">
+            <h3>Contato para devolução</h3>
+            <p>Se você encontrou este item, use os dados abaixo para combinar a devolução.</p>
+            <p><strong>E-mail:</strong> <a href="mailto:{{ contato_email }}">{{ contato_email }}</a></p>
+            {% if contato_telefone %}
+            <p><strong>Telefone:</strong> <a href="tel:{{ contato_telefone }}">{{ contato_telefone }}</a></p>
+            {% else %}
+            <p><strong>Telefone:</strong> Não informado</p>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    {% if can_manage_item %}
+    {% if can_mark_found or can_edit_or_delete %}
+    <div class="detail-actions">
+        {% if can_mark_found %}
+        <form method="post" action="{% url 'objeto_perdido_mark_found' obj.pk %}" onsubmit="return confirm('Tem certeza de que deseja marcar este item como encontrado? Essa ação não poderá ser desfeita.');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Marcar como Encontrado</button>
+        </form>
+        {% endif %}
+        {% if can_edit_or_delete %}
+        <a href="{% url 'objeto_perdido_update' obj.pk %}" class="btn btn-secondary">Editar</a>
+        <a href="{% url 'objeto_perdido_delete' obj.pk %}" class="btn btn-danger">Excluir</a>
+        {% endif %}
+    </div>
+    {% endif %}
+    {% if not can_edit_or_delete %}
+    <div class="info-box">
+        <p>Este registro foi encerrado como encontrado e não pode mais ser editado ou excluído.</p>
+    </div>
+    {% endif %}
+    {% endif %}
+</div>
+
+{% if correspondencias %}
+<section class="section-correspondencias">
+    <h2>Possíveis Correspondências</h2>
+    <p>Objetos encontrados na mesma categoria que podem ser o seu:</p>
+    <div class="cards-grid">
+        {% for item in correspondencias %}
+        <div class="card card-match">
+            <div class="card-header">
+                <span class="badge badge-categoria">{{ item.categoria }}</span>
+                <span class="card-status {{ item.status|status_class }}">{{ item.get_status_display }}</span>
+            </div>
+            <h3><a href="{% url 'objeto_encontrado_detail' item.pk %}">{{ item.titulo }}</a></h3>
+            <p class="card-desc">{{ item.descricao|truncatewords:15 }}</p>
+            <p class="card-meta">{{ item.local_encontrado }} &middot; {{ item.data_encontrado }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+{% endblock %}

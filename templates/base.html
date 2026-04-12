@@ -1,0 +1,75 @@
+{% load static %}
+{% load core_tags %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PUC Encontra{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/components.css' %}">
+    <link rel="stylesheet" href="{% static 'css/forms.css' %}">
+    <link rel="stylesheet" href="{% static 'css/pages.css' %}">
+</head>
+<body>
+
+<header class="header">
+    <div class="container header-inner">
+        <a href="{% url 'home' %}" class="logo">
+            <span class="logo-icon">&#9782;</span>
+            PUC Encontra
+        </a>
+
+        <nav class="nav">
+            <a href="{% url 'perdidos_publico' %}">Perdidos</a>
+            <a href="{% url 'encontrados_publico' %}">Encontrados</a>
+
+            {% if user.is_authenticated %}
+                {% with user_tipo=user|tipo_usuario %}
+                <a href="{% url 'dashboard' %}">Dashboard</a>
+                <a href="{% url 'meus_registros' %}">Meus Registros</a>
+
+                {% if user_tipo == 'admin' %}
+                    <a href="{% url 'aprovacoes' %}">Aprovações</a>
+                    <a href="{% url 'categoria_list' %}">Categorias</a>
+                    <a href="{% url 'local_list' %}">Locais</a>
+                    <a href="{% url 'admin_usuarios' %}">Usuários</a>
+                {% endif %}
+                {% endwith %}
+
+                <div class="nav-user">
+                    <a href="{% url 'perfil' %}" class="btn-perfil">{{ user.first_name|default:user.username }}</a>
+                    <a href="{% url 'logout' %}" class="btn-logout">Sair</a>
+                </div>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn-login">Entrar</a>
+                <a href="{% url 'registro' %}" class="btn-register">Cadastrar</a>
+            {% endif %}
+        </nav>
+    </div>
+</header>
+
+{% if messages %}
+<div class="container">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<main class="main-content">
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+</main>
+
+<footer class="footer">
+    <div class="container">
+        <p>&copy; 2026 PUC Encontra &mdash; Sistema de Achados e Perdidos Inteligente</p>
+    </div>
+</footer>
+
+</body>
+</html>
