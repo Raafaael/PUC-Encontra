@@ -3,9 +3,12 @@ from django.contrib.auth import views as auth_views
 from . import views
 
 urlpatterns = [
+    # Páginas públicas
     path("", views.home, name="home"),
     path("perdidos/", views.perdidos_publico, name="perdidos_publico"),
     path("encontrados/", views.encontrados_publico, name="encontrados_publico"),
+
+    # Autenticação
     path("registro/", views.registro, name="registro"),
     path("registro/verificar/", views.verificar_email, name="verificar_email"),
     path(
@@ -18,40 +21,26 @@ urlpatterns = [
     ),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("perfil/", views.perfil, name="perfil"),
+    path("perfil/desativar/", views.desativar_conta, name="desativar_conta"),
+
     # Dashboard e Meus Registros
     path("dashboard/", views.dashboard, name="dashboard"),
     path("meus-registros/", views.meus_registros, name="meus_registros"),
+
     # Objetos Perdidos (CRUD)
     path("perdidos/novo/", views.objeto_perdido_create, name="objeto_perdido_create"),
-    path(
-        "perdidos/<int:pk>/", views.objeto_perdido_detail, name="objeto_perdido_detail"
-    ),
+    path("perdidos/<int:pk>/", views.objeto_perdido_detail, name="objeto_perdido_detail"),
     path(
         "perdidos/<int:pk>/marcar-encontrado/",
         views.objeto_perdido_mark_found,
         name="objeto_perdido_mark_found",
     ),
-    path(
-        "perdidos/<int:pk>/editar/",
-        views.objeto_perdido_update,
-        name="objeto_perdido_update",
-    ),
-    path(
-        "perdidos/<int:pk>/excluir/",
-        views.objeto_perdido_delete,
-        name="objeto_perdido_delete",
-    ),
+    path("perdidos/<int:pk>/editar/", views.objeto_perdido_update, name="objeto_perdido_update"),
+    path("perdidos/<int:pk>/excluir/", views.objeto_perdido_delete, name="objeto_perdido_delete"),
+
     # Objetos Encontrados (CRUD)
-    path(
-        "encontrados/novo/",
-        views.objeto_encontrado_create,
-        name="objeto_encontrado_create",
-    ),
-    path(
-        "encontrados/<int:pk>/",
-        views.objeto_encontrado_detail,
-        name="objeto_encontrado_detail",
-    ),
+    path("encontrados/novo/", views.objeto_encontrado_create, name="objeto_encontrado_create"),
+    path("encontrados/<int:pk>/", views.objeto_encontrado_detail, name="objeto_encontrado_detail"),
     path(
         "encontrados/<int:pk>/editar/",
         views.objeto_encontrado_update,
@@ -62,6 +51,7 @@ urlpatterns = [
         views.objeto_encontrado_delete,
         name="objeto_encontrado_delete",
     ),
+
     # Solicitações de Posse
     path(
         "solicitacoes/nova/<int:encontrado_id>/",
@@ -74,23 +64,23 @@ urlpatterns = [
         views.solicitacao_validar,
         name="solicitacao_validar",
     ),
+
     # Aprovações (Admin)
     path("aprovacoes/", views.aprovacoes, name="aprovacoes"),
     path("aprovacoes/<str:tipo>/<int:pk>/", views.aprovar_item, name="aprovar_item"),
+
     # Categorias (Admin)
     path("categorias/", views.categoria_list, name="categoria_list"),
     path("categorias/nova/", views.categoria_create, name="categoria_create"),
-    path(
-        "categorias/<int:pk>/editar/", views.categoria_update, name="categoria_update"
-    ),
-    path(
-        "categorias/<int:pk>/excluir/", views.categoria_delete, name="categoria_delete"
-    ),
+    path("categorias/<int:pk>/editar/", views.categoria_update, name="categoria_update"),
+    path("categorias/<int:pk>/excluir/", views.categoria_delete, name="categoria_delete"),
+
     # Locais (Admin)
     path("locais/", views.local_list, name="local_list"),
     path("locais/novo/", views.local_create, name="local_create"),
     path("locais/<int:pk>/editar/", views.local_update, name="local_update"),
     path("locais/<int:pk>/excluir/", views.local_delete, name="local_delete"),
+
     # Gerenciamento de Usuários (Admin)
     path("admin-painel/usuarios/", views.admin_usuarios, name="admin_usuarios"),
     path(
