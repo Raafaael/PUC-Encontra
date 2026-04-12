@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}PUC Encontra — Achados e Perdidos{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <h1>PUC Encontra</h1>
+    <p class="hero-subtitle">Sistema Inteligente de Achados e Perdidos da Universidade</p>
+    <p class="hero-desc">
+        Perdeu algo no campus? Encontrou um objeto? Nosso sistema conecta
+        quem perdeu com quem encontrou, de forma rápida e organizada.
+    </p>
+    <div class="hero-actions">
+        <a href="{% url 'registro' %}" class="btn btn-primary btn-large">Cadastre-se</a>
+        <a href="{% url 'login' %}" class="btn btn-secondary btn-large">Já tenho conta</a>
+    </div>
+</section>
+
+<section class="stats-section">
+    <h2>Números do Sistema</h2>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-number">{{ total_perdidos }}</span>
+            <span class="stat-label">Itens procurados</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">{{ total_encontrados }}</span>
+            <span class="stat-label">Itens encontrados</span>
+        </div>
+        <div class="stat-card stat-card-success">
+            <span class="stat-number">{{ total_devolvidos }}</span>
+            <span class="stat-label">Itens devolvidos</span>
+        </div>
+    </div>
+</section>
+
+<section class="how-it-works">
+    <h2>Como Funciona</h2>
+    <div class="steps-grid">
+        <div class="step-card">
+            <span class="step-number">1</span>
+            <h3>Registre</h3>
+            <p>Perdeu algo? Cadastre o objeto com detalhes como categoria, local e data.</p>
+        </div>
+        <div class="step-card">
+            <span class="step-number">2</span>
+            <h3>Aprovação</h3>
+            <p>Um administrador revisa e aprova o registro antes de ser publicado.</p>
+        </div>
+        <div class="step-card">
+            <span class="step-number">3</span>
+            <h3>Reivindique</h3>
+            <p>Reconheceu seu objeto? Faça uma solicitação de posse com comprovação.</p>
+        </div>
+        <div class="step-card">
+            <span class="step-number">4</span>
+            <h3>Receba</h3>
+            <p>Após validação do administrador, retire seu objeto no local indicado.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}
