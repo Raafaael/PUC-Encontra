@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% load core_tags %}
+
+{% block title %}Dashboard - PUC Encontra{% endblock %}
+
+{% block content %}
+<h1>Dashboard</h1>
+<p class="dashboard-greeting">
+    Olá, <strong>{{ user.first_name|default:user.username }}</strong>!
+    {% if tipo == 'usuario' %}
+        <span class="badge badge-usuario">Usuário</span>
+    {% elif tipo == 'admin' %}
+        <span class="badge badge-admin">Administrador</span>
+    {% endif %}
+</p>
+
+{% if tipo == 'usuario' %}
+<div class="dashboard-actions">
+    <a href="{% url 'objeto_perdido_create' %}" class="btn btn-primary">Registrar Objeto Perdido</a>
+    <a href="{% url 'objeto_encontrado_create' %}" class="btn btn-secondary">Registrar Objeto Encontrado</a>
+</div>
+
+{% if sugestoes %}
+<section class="dashboard-section">
+    <h2>Possíveis correspondências para seus itens</h2>
+    <p class="section-desc">Objetos encontrados na mesma categoria dos seus itens perdidos:</p>
+    <div class="cards-grid">
+        {% for obj in sugestoes %}
+        <div class="card card-match">
+            <div class="card-header">
+                <span class="badge badge-categoria">{{ obj.categoria }}</span>
+                <span class="card-status {{ obj.status|status_class }}">{{ obj.get_status_display }}</span>
+            </div>
+            <h3><a href="{% url 'objeto_encontrado_detail' obj.pk %}">{{ obj.titulo }}</a></h3>
+            <p class="card-meta">{{ obj.local_encontrado }} &middot; {{ obj.data_encontrado }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<div class="dashboard-grid">
+    <section class="dashboard-section">
+        <h2>Meus Objetos Perdidos</h2>
+        {% if meus_perdidos %}
+        <table class="table">
+            <thead><tr><th>Título</th><th>Data</th><th>Status</th></tr></thead>
+            <tbody>
+                {% for obj in meus_perdidos %}
+                <tr>
+                    <td><a href="{% url 'objeto_perdido_detail' obj.pk %}">{{ obj.titulo }}</a></td>
+                    <td>{{ obj.data_perda }}</td>
+                    <td><span class="{{ obj.status|status_class }}">{{ obj.get_status_display }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="{% url 'meus_registros' %}?tipo_item=perdido" class="link-more">Ver todos &rarr;</a>
+        {% else %}
+        <p class="empty-state">Nenhum objeto perdido registrado.</p>
+        {% endif %}
+    </section>
+
+    <section class="dashboard-section">
+        <h2>Meus Objetos Encontrados</h2>
+        {% if meus_encontrados %}
+        <table class="table">
+            <thead><tr><th>Título</th><th>Data</th><th>Status</th></tr></thead>
+            <tbody>
+                {% for obj in meus_encontrados %}
+                <tr>
+                    <td><a href="{% url 'objeto_encontrado_detail' obj.pk %}">{{ obj.titulo }}</a></td>
+                    <td>{{ obj.data_encontrado }}</td>
+                    <td><span class="{{ obj.status|status_class }}">{{ obj.get_status_display }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="{% url 'meus_registros' %}?tipo_item=encontrado" class="link-more">Ver todos &rarr;</a>
+        {% else %}
+        <p class="empty-state">Nenhum objeto encontrado registrado.</p>
+        {% endif %}
+    </section>
+</div>
+
+{% elif tipo == 'admin' %}
+<div class="stats-grid">
+    <div class="stat-card">
+        <span class="stat-number">{{ total_perdidos }}</span>
+        <span class="stat-label">Objetos perdidos</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-number">{{ total_encontrados }}</span>
+        <span class="stat-label">Objetos encontrados</span>
+    </div>
+    <div class="stat-card stat-card-success">
+        <span class="stat-number">{{ total_devolvidos }}</span>
+        <span class="stat-label">Devolvidos</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-number">{{ total_usuarios }}</span>
+        <span class="stat-label">Usuários</span>
+    </div>
+</div>
+
+{% if pendentes_aprovacao > 0 %}
+<div class="alert alert-warning">
+    <strong>{{ pendentes_aprovacao }}</strong> item(ns) aguardando aprovação.
+    <a href="{% url 'aprovacoes' %}">Ver aprovações &rarr;</a>
+</div>
+{% endif %}
+
+{% if stats_categorias %}
+<section class="dashboard-section">
+    <h2>Top Categorias</h2>
+    <table class="table">
+        <thead><tr><th>Categoria</th><th>Perdidos</th><th>Encontrados</th></tr></thead>
+        <tbody>
+            {% for cat in stats_categorias %}
+            <tr>
+                <td>{{ cat.nome }}</td>
+                <td>{{ cat.num_perdidos }}</td>
+                <td>{{ cat.num_encontrados }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endif %}
+
+{% if solicitacoes_pendentes %}
+<section class="dashboard-section">
+    <h2>Solicitações Pendentes</h2>
+    <table class="table">
+        <thead><tr><th>Objeto</th><th>Solicitante</th><th>Data</th><th>Ação</th></tr></thead>
+        <tbody>
+            {% for s in solicitacoes_pendentes %}
+            <tr>
+                <td>{{ s.objeto_encontrado.titulo }}</td>
+                <td>{{ s.solicitante.get_full_name|default:s.solicitante.username }}</td>
+                <td>{{ s.data_solicitacao|date:"d/m/Y" }}</td>
+                <td><a href="{% url 'solicitacao_validar' s.pk %}" class="btn btn-small btn-primary">Validar</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endif %}
+
+<div class="dashboard-grid">
+    <section class="dashboard-section">
+        <h2>Perdidos Recentes</h2>
+        {% if perdidos_recentes %}
+        <table class="table">
+            <thead><tr><th>Título</th><th>Usuário</th><th>Status</th></tr></thead>
+            <tbody>
+                {% for obj in perdidos_recentes %}
+                <tr>
+                    <td><a href="{% url 'objeto_perdido_detail' obj.pk %}">{{ obj.titulo }}</a></td>
+                    <td>{{ obj.usuario.get_full_name|default:obj.usuario.username }}</td>
+                    <td><span class="{{ obj.status|status_class }}">{{ obj.get_status_display }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="empty-state">Nenhum registro recente.</p>
+        {% endif %}
+    </section>
+
+    <section class="dashboard-section">
+        <h2>Encontrados Recentes</h2>
+        {% if encontrados_recentes %}
+        <table class="table">
+            <thead><tr><th>Título</th><th>Encontrado por</th><th>Status</th></tr></thead>
+            <tbody>
+                {% for obj in encontrados_recentes %}
+                <tr>
+                    <td><a href="{% url 'objeto_encontrado_detail' obj.pk %}">{{ obj.titulo }}</a></td>
+                    <td>{{ obj.usuario.get_full_name|default:obj.usuario.username }}</td>
+                    <td><span class="{{ obj.status|status_class }}">{{ obj.get_status_display }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="empty-state">Nenhum registro recente.</p>
+        {% endif %}
+    </section>
+</div>
+{% endif %}
+{% endblock %}
