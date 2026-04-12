@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models import Count
 from django.shortcuts import render
 
-from ..access import get_user_tipo
+from ..permissions import get_user_tipo
 from ..models import Categoria, ObjetoEncontrado, ObjetoPerdido, SolicitacaoPosse
 
 
