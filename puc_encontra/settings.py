@@ -1,19 +1,24 @@
 """
 Configurações do projeto PUC Encontra.
+
+Sistema de Achados e Perdidos Inteligente da PUC.
 """
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 # Diretório base do projeto
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Chave secreta
+load_dotenv(BASE_DIR / '.env')
+
+# Chave secreta: usar variável de ambiente em produção
 SECRET_KEY = os.environ.get(
     'DJANGO_SECRET_KEY',
     'django-insecure-puc-encontra-dev-key-change-in-production'
 )
 
-# Modo debug
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ('true', '1', 'yes')
 
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
@@ -61,7 +66,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'puc_encontra.wsgi.application'
 
-# Banco de dados: SQLite
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -104,3 +108,12 @@ LOGOUT_REDIRECT_URL = '/'
 AUTHENTICATION_BACKENDS = [
     'core.backends.EmailOuUsernameBackend',
 ]
+
+# E-mail: Gmail SMTP
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.environ.get('EMAIL_HOST_USER', 'noreply@pucencontra.com')
