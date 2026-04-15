@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Locais — PUC Encontra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Locais</h1>
+    <a href="{% url 'local_create' %}" class="btn btn-primary">Novo Local</a>
+</div>
+
+{% if locais %}
+<table class="table">
+    <thead><tr><th>Nome</th><th>Prédio</th><th>Andar</th><th>Perdidos</th><th>Encontrados</th><th>Ações</th></tr></thead>
+    <tbody>
+        {% for loc in locais %}
+        <tr>
+            <td><strong>{{ loc.nome }}</strong></td>
+            <td>{{ loc.predio }}</td>
+            <td>{{ loc.andar|default:'-' }}</td>
+            <td>{{ loc.num_perdidos }}</td>
+            <td>{{ loc.num_encontrados }}</td>
+            <td>
+                <a href="{% url 'local_update' loc.pk %}" class="btn btn-small btn-secondary">Editar</a>
+                <a href="{% url 'local_delete' loc.pk %}" class="btn btn-small btn-danger">Excluir</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="empty-state-large">
+    <p>Nenhum local cadastrado.</p>
+    <a href="{% url 'local_create' %}" class="btn btn-primary">Criar primeiro local</a>
+</div>
+{% endif %}
+{% endblock %}
