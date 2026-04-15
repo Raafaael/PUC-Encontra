@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Categorias — PUC Encontra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Categorias</h1>
+    <a href="{% url 'categoria_create' %}" class="btn btn-primary">Nova Categoria</a>
+</div>
+
+{% if categorias %}
+<table class="table">
+    <thead><tr><th>Nome</th><th>Descrição</th><th>Perdidos</th><th>Encontrados</th><th>Ações</th></tr></thead>
+    <tbody>
+        {% for cat in categorias %}
+        <tr>
+            <td><strong>{{ cat.nome }}</strong></td>
+            <td>{{ cat.descricao|truncatewords:10|default:'-' }}</td>
+            <td>{{ cat.num_perdidos }}</td>
+            <td>{{ cat.num_encontrados }}</td>
+            <td>
+                <a href="{% url 'categoria_update' cat.pk %}" class="btn btn-small btn-secondary">Editar</a>
+                <a href="{% url 'categoria_delete' cat.pk %}" class="btn btn-small btn-danger">Excluir</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="empty-state-large">
+    <p>Nenhuma categoria cadastrada.</p>
+    <a href="{% url 'categoria_create' %}" class="btn btn-primary">Criar primeira categoria</a>
+</div>
+{% endif %}
+{% endblock %}
