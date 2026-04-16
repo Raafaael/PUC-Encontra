@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load core_tags %}
+
+{% block title %}Gerenciar Usuários — PUC Encontra{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Gerenciar Usuários</h1>
+</div>
+
+<form method="get" class="filter-bar">
+    <input type="text" name="q" value="{{ filtro_busca }}" placeholder="Buscar por nome ou username...">
+    <select name="tipo">
+        <option value="">Todos os tipos</option>
+        <option value="usuario" {% if filtro_tipo == 'usuario' %}selected{% endif %}>Usuário</option>
+        <option value="admin" {% if filtro_tipo == 'admin' %}selected{% endif %}>Administrador</option>
+    </select>
+    <button type="submit" class="btn btn-secondary">Filtrar</button>
+</form>
+
+{% if usuarios %}
+<table class="table">
+    <thead><tr><th>Nome</th><th>Username</th><th>E-mail</th><th>Tipo</th><th>Ativo</th><th>Ações</th></tr></thead>
+    <tbody>
+        {% for u in usuarios %}
+        <tr>
+            <td>{{ u.get_full_name|default:'-' }}</td>
+            <td>{{ u.username }}</td>
+            <td>{{ u.email|default:'-' }}</td>
+            <td>
+                {% if u.perfil %}
+                <span class="badge badge-{{ u.perfil.tipo }}">{{ u.perfil.get_tipo_display }}</span>
+                {% else %}
+                <span class="badge">Sem perfil</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if u.is_active %}
+                <span class="status-aprovada">Sim</span>
+                {% else %}
+                <span class="status-rejeitada">Não</span>
+                {% endif %}
+            </td>
+            <td><a href="{% url 'admin_usuario_edit' u.pk %}" class="btn btn-small btn-secondary">Editar</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="empty-state-large"><p>Nenhum usuário encontrado.</p></div>
+{% endif %}
+{% endblock %}

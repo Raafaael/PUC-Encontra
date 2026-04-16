@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Usuário — PUC Encontra{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="{% url 'admin_usuarios' %}">Usuários</a> &raquo; {{ usuario.username }}
+</div>
+
+<h1>Editar Usuário: {{ usuario.username }}</h1>
+
+<form method="post" class="form-card">
+    {% csrf_token %}
+
+    {% if form.errors %}
+    <div class="alert alert-error">Por favor, corrija os erros abaixo.</div>
+    {% endif %}
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="id_first_name">Nome</label>
+            <input type="text" name="first_name" id="id_first_name" value="{{ form.first_name.value|default:'' }}">
+        </div>
+        <div class="form-group">
+            <label for="id_last_name">Sobrenome</label>
+            <input type="text" name="last_name" id="id_last_name" value="{{ form.last_name.value|default:'' }}">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="id_email">E-mail</label>
+        <input type="email" name="email" id="id_email" value="{{ form.email.value|default:'' }}">
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="id_tipo">Tipo de Usuário</label>
+            {{ form.tipo }}
+        </div>
+        <div class="form-group">
+            <label for="id_matricula">Matrícula</label>
+            <input type="text" name="matricula" id="id_matricula" value="{{ form.matricula.value|default:'' }}">
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="id_telefone">Telefone *</label>
+            <input type="text" name="telefone" id="id_telefone" value="{{ form.telefone.value|default:'' }}" required>
+        </div>
+        <div class="form-group">
+            <label class="checkbox-label">
+                <input type="checkbox" name="is_active" id="id_is_active"
+                       {% if form.is_active.value %}checked{% endif %}>
+                Usuário ativo
+            </label>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+        <a href="{% url 'admin_usuarios' %}" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>
+{% endblock %}
