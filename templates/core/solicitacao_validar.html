@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Validar Solicitação — PUC Encontra{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="{% url 'aprovacoes' %}">Aprovações</a>
+    &raquo; <a href="{% url 'solicitacao_detail' solicitacao.pk %}">#{{ solicitacao.pk }}</a>
+    &raquo; Validar
+</div>
+
+<h1>Validar Solicitação #{{ solicitacao.pk }}</h1>
+
+<div class="info-box">
+    <h3>Objeto: {{ solicitacao.objeto_encontrado.titulo }}</h3>
+    <p><strong>Solicitante:</strong> {{ solicitacao.solicitante.get_full_name|default:solicitacao.solicitante.username }}</p>
+    <p><strong>Comprovação:</strong></p>
+    <p>{{ solicitacao.descricao_comprovacao|linebreaksbr }}</p>
+</div>
+
+<form method="post" class="form-card">
+    {% csrf_token %}
+
+    <div class="form-group">
+        <label>Decisão *</label>
+        <div class="radio-group">
+            {% for radio in form.status %}
+            <label class="radio-label">{{ radio.tag }} {{ radio.choice_label }}</label>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="id_resposta_admin">Justificativa / Resposta</label>
+        <textarea name="resposta_admin" id="id_resposta_admin" rows="4"
+                  placeholder="Explique a razão da decisão...">{{ form.resposta_admin.value|default:'' }}</textarea>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Confirmar Decisão</button>
+        <a href="{% url 'solicitacao_detail' solicitacao.pk %}" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>
+{% endblock %}

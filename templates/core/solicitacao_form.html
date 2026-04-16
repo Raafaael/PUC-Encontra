@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Reivindicar Objeto — PUC Encontra{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="{% url 'objeto_encontrado_detail' objeto_encontrado.pk %}">{{ objeto_encontrado.titulo }}</a>
+    &raquo; Reivindicar Posse
+</div>
+
+<h1>Reivindicar Objeto</h1>
+
+<div class="info-box">
+    <h3>Objeto: {{ objeto_encontrado.titulo }}</h3>
+    <p>{{ objeto_encontrado.descricao|truncatewords:30 }}</p>
+    <p class="card-meta">
+        Encontrado em: {{ objeto_encontrado.local_encontrado|default:'Não informado' }}
+        &middot; {{ objeto_encontrado.data_encontrado }}
+    </p>
+</div>
+
+<form method="post" class="form-card">
+    {% csrf_token %}
+
+    {% if form.errors %}
+    <div class="alert alert-error">Por favor, corrija os erros abaixo.</div>
+    {% endif %}
+
+    <div class="form-group">
+        <label for="id_objeto_perdido">Vincular a um registro de perda (opcional)</label>
+        {{ form.objeto_perdido }}
+        <p class="form-help">Se você registrou a perda deste objeto no sistema, selecione aqui.</p>
+    </div>
+
+    <div class="form-group">
+        <label for="id_descricao_comprovacao">Comprovação de propriedade *</label>
+        {{ form.descricao_comprovacao }}
+        {% if form.descricao_comprovacao.errors %}<span class="form-error">{{ form.descricao_comprovacao.errors.0 }}</span>{% endif %}
+        <p class="form-help">Descreva características específicas que comprovem que o objeto é seu.</p>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Enviar Solicitação</button>
+        <a href="{% url 'objeto_encontrado_detail' objeto_encontrado.pk %}" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>
+{% endblock %}

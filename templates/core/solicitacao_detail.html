@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load core_tags %}
+
+{% block title %}Solicitação #{{ solicitacao.pk }} — PUC Encontra{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="{% url 'objeto_encontrado_detail' solicitacao.objeto_encontrado.pk %}">Objeto Encontrado</a> &raquo; Solicitação #{{ solicitacao.pk }}
+</div>
+
+<div class="detail-card">
+    <div class="detail-header">
+        <h1>Solicitação #{{ solicitacao.pk }}</h1>
+        <span class="card-status {{ solicitacao.status|status_class }}">{{ solicitacao.get_status_display }}</span>
+    </div>
+
+    <div class="detail-body">
+        <div class="detail-info-grid">
+            <div class="detail-info">
+                <strong>Solicitante:</strong>
+                {{ solicitacao.solicitante.get_full_name|default:solicitacao.solicitante.username }}
+            </div>
+            <div class="detail-info">
+                <strong>Data da solicitação:</strong> {{ solicitacao.data_solicitacao|date:"d/m/Y H:i" }}
+            </div>
+            {% if solicitacao.data_resposta %}
+            <div class="detail-info">
+                <strong>Data da resposta:</strong> {{ solicitacao.data_resposta|date:"d/m/Y H:i" }}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="info-box">
+            <h3>Objeto Encontrado</h3>
+            <p><a href="{% url 'objeto_encontrado_detail' solicitacao.objeto_encontrado.pk %}">{{ solicitacao.objeto_encontrado.titulo }}</a></p>
+            <p class="card-meta">
+                {{ solicitacao.objeto_encontrado.categoria|default:'' }}
+                &middot; {{ solicitacao.objeto_encontrado.local_encontrado|default:'' }}
+            </p>
+        </div>
+
+        {% if solicitacao.objeto_perdido %}
+        <div class="info-box">
+            <h3>Registro de Perda Vinculado</h3>
+            <p><a href="{% url 'objeto_perdido_detail' solicitacao.objeto_perdido.pk %}">{{ solicitacao.objeto_perdido.titulo }}</a></p>
+        </div>
+        {% endif %}
+
+        <div class="detail-description">
+            <h2>Comprovação de Propriedade</h2>
+            <p>{{ solicitacao.descricao_comprovacao|linebreaksbr }}</p>
+        </div>
+
+        {% if solicitacao.resposta_admin %}
+        <div class="detail-description resposta-admin">
+            <h2>Resposta do Administrador</h2>
+            <p>{{ solicitacao.resposta_admin|linebreaksbr }}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if tipo == 'admin' and solicitacao.status == 'pendente' %}
+    <div class="detail-actions">
+        <a href="{% url 'solicitacao_validar' solicitacao.pk %}" class="btn btn-primary">Validar Solicitação</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
