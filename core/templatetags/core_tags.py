@@ -1,6 +1,6 @@
 from django import template
 
-from core.permissions import get_user_tipo
+from core.access import get_user_tipo
 
 register = template.Library()
 
