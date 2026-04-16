@@ -1,5 +1,8 @@
+import random
+
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
 
 
 class Perfil(models.Model):
@@ -39,8 +42,38 @@ class Perfil(models.Model):
         return self.tipo == 'admin'
 
     @property
+    def is_funcionario(self):
+        return False
+
+    @property
     def is_usuario(self):
         return self.tipo == 'usuario'
+
+    @property
+    def is_aluno(self):
+        return self.is_usuario
+
+
+class CodigoVerificacao(models.Model):
+    """Código de 6 dígitos para verificação de e-mail no registro."""
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='codigo_verificacao')
+    codigo = models.CharField(max_length=6)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Código de Verificação'
+        verbose_name_plural = 'Códigos de Verificação'
+
+    def __str__(self):
+        return f'Código para {self.user.username}'
+
+    @staticmethod
+    def gerar_codigo():
+        return f'{random.randint(0, 999999):06d}'
+
+    def expirado(self):
+        return timezone.now() > self.criado_em + timezone.timedelta(minutes=30)
 
 
 class Categoria(models.Model):

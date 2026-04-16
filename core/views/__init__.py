@@ -1,4 +1,4 @@
-from .account import desativar_conta, perfil, registro, verificar_email
+from .account import desativar_conta, perfil, registro, trocar_senha, verificar_email
 from .admin_views import (
     admin_usuario_edit,
     admin_usuarios,
@@ -58,6 +58,7 @@ __all__ = [
     'perfil',
     'perdidos_publico',
     'registro',
+    'trocar_senha',
     'verificar_email',
     'solicitacao_create',
     'solicitacao_detail',

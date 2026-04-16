@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 
-from ..permissions import (
+from ..access import (
     can_manage_resource,
     can_view_objeto_encontrado,
     can_view_objeto_perdido,

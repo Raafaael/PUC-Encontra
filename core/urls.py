@@ -20,7 +20,38 @@ urlpatterns = [
     path("perfil/", views.perfil, name="perfil"),
     path("perfil/trocar-senha/", views.trocar_senha, name="trocar_senha"),
     path("perfil/desativar/", views.desativar_conta, name="desativar_conta"),
-
+    path(
+        "senha/resetar/",
+        auth_views.PasswordResetView.as_view(
+            template_name="registration/password_reset.html",
+            email_template_name="registration/password_reset_email.html",
+            subject_template_name="registration/password_reset_subject.txt",
+            success_url="/senha/resetar/enviado/",
+        ),
+        name="password_reset",
+    ),
+    path(
+        "senha/resetar/enviado/",
+        auth_views.PasswordResetDoneView.as_view(
+            template_name="registration/password_reset_done.html",
+        ),
+        name="password_reset_done",
+    ),
+    path(
+        "senha/resetar/<uidb64>/<token>/",
+        auth_views.PasswordResetConfirmView.as_view(
+            template_name="registration/password_reset_confirm.html",
+            success_url="/senha/resetar/completo/",
+        ),
+        name="password_reset_confirm",
+    ),
+    path(
+        "senha/resetar/completo/",
+        auth_views.PasswordResetCompleteView.as_view(
+            template_name="registration/password_reset_complete.html",
+        ),
+        name="password_reset_complete",
+    ),
     # Dashboard e Meus Registros
     path("dashboard/", views.dashboard, name="dashboard"),
     path("meus-registros/", views.meus_registros, name="meus_registros"),
