@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Avaliar Item — PUC Encontra{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="{% url 'aprovacoes' %}">Aprovações</a> &raquo; Avaliar
+</div>
+
+<h1>Avaliar Item</h1>
+
+<div class="info-box">
+    <h3>{{ obj.titulo }}</h3>
+    <p><strong>Tipo:</strong> {% if tipo == 'perdido' %}Objeto Perdido{% else %}Objeto Encontrado{% endif %}</p>
+    <p><strong>Registrado por:</strong> {{ obj.usuario.get_full_name|default:obj.usuario.username }}</p>
+    <p><strong>Categoria:</strong> {{ obj.categoria|default:'Não informada' }}</p>
+    <p><strong>Descrição:</strong></p>
+    <p>{{ obj.descricao|linebreaksbr }}</p>
+    {% if obj.imagem %}
+    <div class="detail-image" style="margin-top: 12px;"><img src="{{ obj.imagem.url }}" alt="{{ obj.titulo }}"></div>
+    {% endif %}
+</div>
+
+<form method="post" class="form-card">
+    {% csrf_token %}
+
+    <div class="form-group">
+        <label>Decisão *</label>
+        <div class="radio-group">
+            {% for radio in form.acao %}
+            <label class="radio-label">{{ radio.tag }} {{ radio.choice_label }}</label>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Confirmar</button>
+        <a href="{% url 'aprovacoes' %}" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>
+{% endblock %}
