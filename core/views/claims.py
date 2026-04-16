@@ -4,7 +4,7 @@ from django.db import IntegrityError, transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
-from ..permissions import get_user_tipo
+from ..access import get_user_tipo
 from ..decorators import role_required
 from ..forms import SolicitacaoForm, ValidarSolicitacaoForm
 from ..models import ObjetoEncontrado, SolicitacaoPosse
