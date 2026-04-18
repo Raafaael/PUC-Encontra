@@ -94,7 +94,7 @@ def enviar_email_verificacao(cadastro_pendente, *, reenviar=False):
             'Atenciosamente,\n'
             'Equipe PUC Encontra'
         ),
-        from_email=settings.DEFAULT_FROM_EMAIL,
+        from_email=settings.EMAIL_HOST_USER,
         recipient_list=[cadastro_pendente['email']],
     )
 
@@ -106,6 +106,20 @@ def registro(requisicao):
     if requisicao.method == 'POST':
         formulario = RegistroForm(requisicao.POST)
         if formulario.is_valid():
+            if not settings.REGISTRO_EXIGE_VERIFICACAO_EMAIL:
+                limpar_cadastro_pendente(requisicao)
+                usuario = formulario.save()
+                login(
+                    requisicao,
+                    usuario,
+                    backend='core.backends.EmailOuUsernameBackend',
+                )
+                messages.success(
+                    requisicao,
+                    f'Bem-vindo(a), {usuario.first_name}! Conta criada com sucesso.',
+                )
+                return redirect('dashboard')
+
             cadastro_pendente = montar_cadastro_pendente(formulario)
             salvar_cadastro_pendente(requisicao, cadastro_pendente)
             enviar_email_verificacao(cadastro_pendente)
@@ -117,6 +131,10 @@ def registro(requisicao):
 
 
 def verificar_email(requisicao):
+    if not settings.REGISTRO_EXIGE_VERIFICACAO_EMAIL:
+        limpar_cadastro_pendente(requisicao)
+        return redirect('registro')
+
     cadastro_pendente = obter_cadastro_pendente(requisicao)
     if not cadastro_pendente:
         return redirect('registro')

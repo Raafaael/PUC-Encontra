@@ -12,27 +12,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 load_dotenv(BASE_DIR / ".env")
 
 
-def ambiente_booleano(nome, padrao=False):
-    valor = os.getenv(nome)
-    if valor is None:
-        return padrao
-    return valor.strip().lower() in {"1", "true", "yes", "on"}
-
-
-def ambiente_lista(nome, padrao=""):
-    valor_bruto = os.getenv(nome, padrao)
-    return [item.strip() for item in valor_bruto.split(",") if item.strip()]
-
-
-SECRET_KEY = os.getenv(
-    "DJANGO_SECRET_KEY",
-    "django-insecure-puc-encontra-dev-key-change-in-production",
-)
-
-DEBUG = ambiente_booleano("DJANGO_DEBUG", False)
-
-ALLOWED_HOSTS = ambiente_lista("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
-CSRF_TRUSTED_ORIGINS = ambiente_lista("DJANGO_CSRF_TRUSTED_ORIGINS")
+ALLOWED_HOSTS = []
+CSRF_TRUSTED_ORIGINS = []
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -97,44 +78,33 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
-STATIC_ROOT = Path(os.getenv("DJANGO_STATIC_ROOT", str(BASE_DIR / "staticfiles")))
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
-MEDIA_URL = os.getenv("DJANGO_MEDIA_URL", "/media/")
-MEDIA_ROOT = Path(os.getenv("DJANGO_MEDIA_ROOT", str(BASE_DIR / "media")))
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
-    "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
-    },
+    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
 }
 
-SERVE_MEDIA_FILES = ambiente_booleano("DJANGO_SERVE_MEDIA_FILES", DEBUG)
+SERVE_MEDIA_FILES = False
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/dashboard/"
 LOGOUT_REDIRECT_URL = "/"
+REGISTRO_EXIGE_VERIFICACAO_EMAIL = True
 
 AUTHENTICATION_BACKENDS = [
     "core.backends.EmailOuUsernameBackend",
 ]
 
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
-EMAIL_BACKEND = os.getenv(
-    "EMAIL_BACKEND",
-    (
-        "django.core.mail.backends.smtp.EmailBackend"
-        if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD
-        else "django.core.mail.backends.console.EmailBackend"
-    ),
-)
-EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
-EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
-EMAIL_USE_TLS = ambiente_booleano("EMAIL_USE_TLS", True)
-EMAIL_USE_SSL = ambiente_booleano("EMAIL_USE_SSL", False)
-DEFAULT_FROM_EMAIL = os.getenv(
-    "DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "noreply@pucencontra.com"
-)
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
