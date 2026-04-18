@@ -21,10 +21,10 @@ if not url_banco_dados:
         "Defina DATABASE_URL para conectar o banco de dados em produção."
     )
 
-dominio_publico_vercel = os.getenv("VERCEL_PUBLIC_DOMAIN")
+dominio_publico_vercel = os.getenv("HOST_PUBLIC_DOMAIN")
 if not dominio_publico_vercel:
     raise ImproperlyConfigured(
-        "Defina VERCEL_PUBLIC_DOMAIN com o domínio público da aplicação."
+        "Defina HOST_PUBLIC_DOMAIN com o domínio público da aplicação."
     )
 
 ALLOWED_HOSTS = [dominio_publico_vercel]
