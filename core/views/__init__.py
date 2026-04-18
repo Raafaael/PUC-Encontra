@@ -1,5 +1,6 @@
 from .account import desativar_conta, perfil, registro, trocar_senha, verificar_email
 from .admin_views import (
+    admin_usuario_create,
     admin_usuario_edit,
     admin_usuarios,
     aprovacoes,
@@ -29,6 +30,7 @@ from .items import (
 from .public import encontrados_publico, home, perdidos_publico
 
 __all__ = [
+    'admin_usuario_create',
     'admin_usuario_edit',
     'admin_usuarios',
     'aprovacoes',

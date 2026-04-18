@@ -128,6 +128,11 @@ urlpatterns = [
     # Gerenciamento de Usuários (Admin)
     path("admin-painel/usuarios/", views.admin_usuarios, name="admin_usuarios"),
     path(
+        "admin-painel/usuarios/novo-admin/",
+        views.admin_usuario_create,
+        name="admin_usuario_create",
+    ),
+    path(
         "admin-painel/usuarios/<int:pk>/editar/",
         views.admin_usuario_edit,
         name="admin_usuario_edit",

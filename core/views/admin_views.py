@@ -5,7 +5,7 @@ from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 
 from ..decorators import role_required
-from ..forms import AdminUsuarioForm, AprovarItemForm, CategoriaForm, LocalForm
+from ..forms import AdminCreateForm, AdminUsuarioForm, AprovarItemForm, CategoriaForm, LocalForm
 from ..models import Categoria, Local, ObjetoEncontrado, ObjetoPerdido, Perfil, SolicitacaoPosse
 
 
@@ -211,6 +211,24 @@ def admin_usuarios(request):
         'filtro_tipo': tipo_filtro,
         'filtro_busca': busca or '',
     })
+
+
+@login_required
+@role_required('admin')
+def admin_usuario_create(request):
+    if request.method == 'POST':
+        form = AdminCreateForm(request.POST)
+        if form.is_valid():
+            usuario = form.save()
+            messages.success(
+                request,
+                f'Administrador {usuario.username} criado com sucesso.',
+            )
+            return redirect('admin_usuarios')
+    else:
+        form = AdminCreateForm()
+
+    return render(request, 'core/admin_usuario_create.html', {'form': form})
 
 
 @login_required

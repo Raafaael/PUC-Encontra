@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Novo Administrador — PUC Encontra{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="{% url 'admin_usuarios' %}">Usuários</a> &raquo; Novo administrador
+</div>
+
+<h1>Cadastrar Novo Administrador</h1>
+
+<form method="post" class="form-card">
+    {% csrf_token %}
+
+    {% if form.errors %}
+    <div class="alert alert-error">Por favor, corrija os erros abaixo.</div>
+    {% endif %}
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="id_first_name">Nome *</label>
+            <input
+                type="text"
+                name="first_name"
+                id="id_first_name"
+                value="{{ form.first_name.value|default:'' }}"
+                required
+            >
+            {% if form.first_name.errors %}<span class="form-error">{{ form.first_name.errors.0 }}</span>{% endif %}
+        </div>
+        <div class="form-group">
+            <label for="id_last_name">Sobrenome *</label>
+            <input
+                type="text"
+                name="last_name"
+                id="id_last_name"
+                value="{{ form.last_name.value|default:'' }}"
+                required
+            >
+            {% if form.last_name.errors %}<span class="form-error">{{ form.last_name.errors.0 }}</span>{% endif %}
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="id_username">Nome de usuário *</label>
+        <input
+            type="text"
+            name="username"
+            id="id_username"
+            value="{{ form.username.value|default:'' }}"
+            required
+        >
+        {% if form.username.errors %}<span class="form-error">{{ form.username.errors.0 }}</span>{% endif %}
+    </div>
+
+    <div class="form-group">
+        <label for="id_email">E-mail *</label>
+        <input
+            type="email"
+            name="email"
+            id="id_email"
+            value="{{ form.email.value|default:'' }}"
+            required
+        >
+        {% if form.email.errors %}<span class="form-error">{{ form.email.errors.0 }}</span>{% endif %}
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="id_password1">Senha *</label>
+            <input type="password" name="password1" id="id_password1" required>
+            {% if form.password1.errors %}<span class="form-error">{{ form.password1.errors.0 }}</span>{% endif %}
+        </div>
+        <div class="form-group">
+            <label for="id_password2">Confirmar senha *</label>
+            <input type="password" name="password2" id="id_password2" required>
+            {% if form.password2.errors %}<span class="form-error">{{ form.password2.errors.0 }}</span>{% endif %}
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="id_matricula">Matrícula</label>
+            <input
+                type="text"
+                name="matricula"
+                id="id_matricula"
+                value="{{ form.matricula.value|default:'' }}"
+            >
+            {% if form.matricula.errors %}<span class="form-error">{{ form.matricula.errors.0 }}</span>{% endif %}
+        </div>
+        <div class="form-group">
+            <label for="id_telefone">Telefone *</label>
+            <input
+                type="text"
+                name="telefone"
+                id="id_telefone"
+                value="{{ form.telefone.value|default:'' }}"
+                required
+            >
+            {% if form.telefone.errors %}<span class="form-error">{{ form.telefone.errors.0 }}</span>{% endif %}
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Criar Administrador</button>
+        <a href="{% url 'admin_usuarios' %}" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>
+{% endblock %}
