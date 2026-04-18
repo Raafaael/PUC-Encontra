@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Verificar E-mail — PUC Encontra{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h1>Verificar E-mail</h1>
+    <p class="auth-subtitle">
+        Enviamos um código de 6 dígitos para <strong>{{ email }}</strong>.
+        Digite-o abaixo para ativar sua conta.
+    </p>
+
+    {% if erro %}
+    <div class="alert alert-error">{{ erro }}</div>
+    {% endif %}
+
+    <form method="post" class="form-card">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="id_codigo">Código de Verificação</label>
+            <input type="text" name="codigo" id="id_codigo" required autofocus
+                   maxlength="6" pattern="[0-9]{6}" inputmode="numeric"
+                   placeholder="000000">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full">Verificar</button>
+    </form>
+
+    <form method="post">
+        {% csrf_token %}
+        <p class="auth-link">
+            Não recebeu o código?
+            <button type="submit" name="reenviar" value="1" class="link-btn">Reenviar código</button>
+        </p>
+    </form>
+</div>
+{% endblock %}
