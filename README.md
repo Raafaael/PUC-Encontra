@@ -2,7 +2,7 @@
 
 Projeto da G1 da disciplina de Programação para Web de 2026.1.
 
-LINK: https://puc-encontra.up.railway.app/
+LINK: https://puc-encontra.up.vercel.app/
 
 ## Integrantes
 
@@ -28,7 +28,7 @@ O **PUC Encontra** é um sistema web de achados e perdidos desenvolvido para a P
 
 - **Backend:** Python 3.12 + Django 4.2
 - **Frontend:** HTML5 + CSS3
-- **Banco de dados:** SQLite no desenvolvimento e PostgreSQL no Railway
+- **Banco de dados:** SQLite no desenvolvimento e PostgreSQL no vercel
 - **Imagens:** Pillow
 
 ---
@@ -91,11 +91,11 @@ Também é possível sobrescrever o backend manualmente com `EMAIL_BACKEND`.
 ### Ambientes de settings
 
 - Desenvolvimento local: `puc_encontra.settings.development`
-- Produção no Railway: `puc_encontra.settings.production`
+- Produção no vercel: `puc_encontra.settings.production`
 
 O `manage.py` usa desenvolvimento por padrão. Em produção, configure `DJANGO_SETTINGS_MODULE=puc_encontra.settings.production`.
 
-### Deploy no Railway
+### Deploy no vercel
 
 Variáveis mínimas recomendadas:
 
@@ -103,8 +103,8 @@ Variáveis mínimas recomendadas:
 DJANGO_SETTINGS_MODULE=puc_encontra.settings.production
 DJANGO_SECRET_KEY=gere-uma-chave-segura
 DATABASE_URL=postgresql://usuario:senha@host:porta/banco
-DJANGO_ALLOWED_HOSTS=seu-app.up.railway.app,seu-dominio.com
-DJANGO_CSRF_TRUSTED_ORIGINS=https://seu-app.up.railway.app,https://seu-dominio.com
+DJANGO_ALLOWED_HOSTS=seu-app.up.vercel.app,seu-dominio.com
+DJANGO_CSRF_TRUSTED_ORIGINS=https://seu-app.up.vercel.app,https://seu-dominio.com
 ```
 
 Comandos de deploy:
@@ -115,7 +115,7 @@ python manage.py collectstatic --noinput
 gunicorn puc_encontra.wsgi --bind 0.0.0.0:$PORT
 ```
 
-Se quiser manter upload de imagens em disco no Railway, monte um volume e aponte `DJANGO_MEDIA_ROOT` para esse caminho. Sem volume, os arquivos enviados pelos usuários são efêmeros.
+Se quiser manter upload de imagens em disco no vercel, monte um volume e aponte `DJANGO_MEDIA_ROOT` para esse caminho. Sem volume, os arquivos enviados pelos usuários são efêmeros.
 
 ---
 
@@ -123,10 +123,10 @@ Se quiser manter upload de imagens em disco no Railway, monte um volume e aponte
 
 Após executar `python manage.py seed`, um administrador é criado
 
-| Campo | Valor |
-|-------|-------|
-| Username | `admin` |
-| Senha | `admin123` |
+| Campo    | Valor      |
+| -------- | ---------- |
+| Username | `admin`    |
+| Senha    | `admin123` |
 
 ---
 
