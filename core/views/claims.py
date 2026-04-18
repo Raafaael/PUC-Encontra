@@ -4,32 +4,32 @@ from django.db import IntegrityError, transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
-from ..access import get_user_tipo
-from ..decorators import role_required
+from ..access import obter_tipo_usuario
+from ..decorators import papel_obrigatorio
 from ..forms import SolicitacaoForm, ValidarSolicitacaoForm
 from ..models import ObjetoEncontrado, SolicitacaoPosse
 
 
 @login_required
-def solicitacao_create(request, encontrado_id):
+def solicitacao_criar(requisicao, encontrado_id):
     objeto_encontrado = get_object_or_404(ObjetoEncontrado, pk=encontrado_id)
 
     if SolicitacaoPosse.objects.filter(
-        solicitante=request.user,
+        solicitante=requisicao.user,
         objeto_encontrado=objeto_encontrado,
     ).exists():
-        messages.warning(request, 'Você já enviou uma solicitação para este item.')
+        messages.warning(requisicao, 'Você já enviou uma solicitação para este item.')
         return redirect('objeto_encontrado_detail', pk=encontrado_id)
 
     if objeto_encontrado.status != 'disponivel':
-        messages.warning(request, 'Este item não está mais disponível para solicitação.')
+        messages.warning(requisicao, 'Este item não está mais disponível para solicitação.')
         return redirect('objeto_encontrado_detail', pk=encontrado_id)
 
-    if request.method == 'POST':
-        form = SolicitacaoForm(request.POST, user=request.user)
-        if form.is_valid():
-            solicitacao = form.save(commit=False)
-            solicitacao.solicitante = request.user
+    if requisicao.method == 'POST':
+        formulario = SolicitacaoForm(requisicao.POST, usuario=requisicao.user)
+        if formulario.is_valid():
+            solicitacao = formulario.save(commit=False)
+            solicitacao.solicitante = requisicao.user
             solicitacao.objeto_encontrado = objeto_encontrado
 
             try:
@@ -38,57 +38,57 @@ def solicitacao_create(request, encontrado_id):
                     objeto_encontrado.status = 'reivindicado'
                     objeto_encontrado.save(update_fields=['status'])
             except IntegrityError:
-                messages.warning(request, 'Você já enviou uma solicitação para este item.')
+                messages.warning(requisicao, 'Você já enviou uma solicitação para este item.')
                 return redirect('objeto_encontrado_detail', pk=encontrado_id)
 
             messages.success(
-                request,
+                requisicao,
                 'Solicitação de posse enviada. Aguarde a validação do administrador.',
             )
             return redirect('solicitacao_detail', pk=solicitacao.pk)
     else:
-        form = SolicitacaoForm(user=request.user)
+        formulario = SolicitacaoForm(usuario=requisicao.user)
 
-    return render(request, 'core/solicitacao_form.html', {
-        'form': form,
+    return render(requisicao, 'core/solicitacao_form.html', {
+        'formulario': formulario,
         'objeto_encontrado': objeto_encontrado,
     })
 
 
 @login_required
-def solicitacao_detail(request, pk):
+def solicitacao_detalhe(requisicao, pk):
     solicitacao = get_object_or_404(SolicitacaoPosse, pk=pk)
-    tipo = get_user_tipo(request.user)
+    tipo_usuario = obter_tipo_usuario(requisicao.user)
 
     if (
-        tipo != 'admin'
-        and solicitacao.solicitante != request.user
-        and solicitacao.objeto_encontrado.usuario != request.user
+        tipo_usuario != 'admin'
+        and solicitacao.solicitante != requisicao.user
+        and solicitacao.objeto_encontrado.usuario != requisicao.user
     ):
-        messages.error(request, 'Você não tem permissão para ver esta solicitação.')
+        messages.error(requisicao, 'Você não tem permissão para ver esta solicitação.')
         return redirect('meus_registros')
 
-    return render(request, 'core/solicitacao_detail.html', {
+    return render(requisicao, 'core/solicitacao_detail.html', {
         'solicitacao': solicitacao,
-        'tipo': tipo,
+        'tipo': tipo_usuario,
     })
 
 
 @login_required
-@role_required('admin')
-def solicitacao_validar(request, pk):
+@papel_obrigatorio('admin')
+def solicitacao_avaliar(requisicao, pk):
     solicitacao = get_object_or_404(SolicitacaoPosse, pk=pk)
 
     if solicitacao.status != 'pendente':
-        messages.warning(request, 'Esta solicitação já foi avaliada.')
+        messages.warning(requisicao, 'Esta solicitação já foi avaliada.')
         return redirect('solicitacao_detail', pk=pk)
 
-    if request.method == 'POST':
-        form = ValidarSolicitacaoForm(request.POST)
-        if form.is_valid():
+    if requisicao.method == 'POST':
+        formulario = ValidarSolicitacaoForm(requisicao.POST)
+        if formulario.is_valid():
             with transaction.atomic():
-                solicitacao.status = form.cleaned_data['status']
-                solicitacao.resposta_admin = form.cleaned_data['resposta_admin']
+                solicitacao.status = formulario.cleaned_data['status']
+                solicitacao.resposta_admin = formulario.cleaned_data['resposta_admin']
                 solicitacao.data_resposta = timezone.now()
                 solicitacao.save()
 
@@ -98,7 +98,7 @@ def solicitacao_validar(request, pk):
                     if solicitacao.objeto_perdido:
                         solicitacao.objeto_perdido.status = 'encontrado'
                         solicitacao.objeto_perdido.save(update_fields=['status'])
-                    messages.success(request, 'Solicitação aprovada. Objeto marcado como devolvido.')
+                    messages.success(requisicao, 'Solicitação aprovada. Objeto marcado como devolvido.')
                 else:
                     outras_pendentes = SolicitacaoPosse.objects.filter(
                         objeto_encontrado=solicitacao.objeto_encontrado,
@@ -107,13 +107,13 @@ def solicitacao_validar(request, pk):
                     if not outras_pendentes:
                         solicitacao.objeto_encontrado.status = 'disponivel'
                         solicitacao.objeto_encontrado.save(update_fields=['status'])
-                    messages.info(request, 'Solicitação rejeitada.')
+                    messages.info(requisicao, 'Solicitação rejeitada.')
 
             return redirect('aprovacoes')
     else:
-        form = ValidarSolicitacaoForm()
+        formulario = ValidarSolicitacaoForm()
 
-    return render(request, 'core/solicitacao_validar.html', {
-        'form': form,
+    return render(requisicao, 'core/solicitacao_validar.html', {
+        'formulario': formulario,
         'solicitacao': solicitacao,
     })

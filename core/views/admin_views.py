@@ -4,198 +4,206 @@ from django.contrib.auth.models import User
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 
-from ..decorators import role_required
+from ..decorators import papel_obrigatorio
 from ..forms import AdminCreateForm, AdminUsuarioForm, AprovarItemForm, CategoriaForm, LocalForm
 from ..models import Categoria, Local, ObjetoEncontrado, ObjetoPerdido, Perfil, SolicitacaoPosse
 
 
 @login_required
-@role_required('admin')
-def aprovacoes(request):
-    filtro = request.GET.get('filtro', '')
-    context = {'filtro': filtro}
+@papel_obrigatorio('admin')
+def aprovacoes(requisicao):
+    filtro = requisicao.GET.get('filtro', '')
+    contexto = {'filtro': filtro}
 
     if filtro == 'perdidos' or not filtro:
-        context['perdidos_pendentes'] = ObjetoPerdido.objects.filter(status='pendente')
+        contexto['perdidos_pendentes'] = ObjetoPerdido.objects.filter(status='pendente')
     if filtro == 'encontrados' or not filtro:
-        context['encontrados_pendentes'] = ObjetoEncontrado.objects.filter(status='pendente')
+        contexto['encontrados_pendentes'] = ObjetoEncontrado.objects.filter(status='pendente')
     if filtro == 'solicitacoes' or not filtro:
-        context['solicitacoes_pendentes'] = SolicitacaoPosse.objects.filter(status='pendente')
+        contexto['solicitacoes_pendentes'] = SolicitacaoPosse.objects.filter(status='pendente')
 
-    return render(request, 'core/aprovacoes.html', context)
+    return render(requisicao, 'core/aprovacoes.html', contexto)
 
 
 @login_required
-@role_required('admin')
-def aprovar_item(request, tipo, pk):
+@papel_obrigatorio('admin')
+def aprovar_item(requisicao, tipo, pk):
     if tipo == 'perdido':
-        obj = get_object_or_404(ObjetoPerdido, pk=pk)
+        objeto = get_object_or_404(ObjetoPerdido, pk=pk)
         status_aprovado = 'aberto'
     elif tipo == 'encontrado':
-        obj = get_object_or_404(ObjetoEncontrado, pk=pk)
+        objeto = get_object_or_404(ObjetoEncontrado, pk=pk)
         status_aprovado = 'disponivel'
     else:
-        messages.error(request, 'Tipo inválido.')
+        messages.error(requisicao, 'Tipo inválido.')
         return redirect('aprovacoes')
 
-    if obj.status != 'pendente':
-        messages.warning(request, 'Este item já foi avaliado.')
+    if objeto.status != 'pendente':
+        messages.warning(requisicao, 'Este item já foi avaliado.')
         return redirect('aprovacoes')
 
-    if request.method == 'POST':
-        form = AprovarItemForm(request.POST)
-        if form.is_valid():
-            if form.cleaned_data['acao'] == 'aprovar':
-                obj.status = status_aprovado
-                obj.save(update_fields=['status'])
-                messages.success(request, f'Item "{obj.titulo}" aprovado e publicado.')
+    if requisicao.method == 'POST':
+        formulario = AprovarItemForm(requisicao.POST)
+        if formulario.is_valid():
+            if formulario.cleaned_data['acao'] == 'aprovar':
+                objeto.status = status_aprovado
+                objeto.save(update_fields=['status'])
+                messages.success(requisicao, f'Item "{objeto.titulo}" aprovado e publicado.')
             else:
-                obj.status = 'encerrado'
-                obj.save(update_fields=['status'])
-                messages.info(request, f'Item "{obj.titulo}" rejeitado.')
+                objeto.status = 'encerrado'
+                objeto.save(update_fields=['status'])
+                messages.info(requisicao, f'Item "{objeto.titulo}" rejeitado.')
             return redirect('aprovacoes')
     else:
-        form = AprovarItemForm()
+        formulario = AprovarItemForm()
 
-    return render(request, 'core/aprovar_item.html', {
-        'form': form,
-        'obj': obj,
+    return render(requisicao, 'core/aprovar_item.html', {
+        'formulario': formulario,
+        'objeto': objeto,
         'tipo': tipo,
     })
 
 
 @login_required
-@role_required('admin')
-def categoria_list(request):
+@papel_obrigatorio('admin')
+def categoria_listar(requisicao):
     categorias = Categoria.objects.annotate(
         num_perdidos=Count('objetos_perdidos'),
         num_encontrados=Count('objetos_encontrados'),
     )
-    return render(request, 'core/categoria_list.html', {'categorias': categorias})
+    return render(requisicao, 'core/categoria_list.html', {'categorias': categorias})
 
 
 @login_required
-@role_required('admin')
-def categoria_create(request):
-    if request.method == 'POST':
-        form = CategoriaForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Categoria criada com sucesso.')
+@papel_obrigatorio('admin')
+def categoria_criar(requisicao):
+    if requisicao.method == 'POST':
+        formulario = CategoriaForm(requisicao.POST)
+        if formulario.is_valid():
+            formulario.save()
+            messages.success(requisicao, 'Categoria criada com sucesso.')
             return redirect('categoria_list')
     else:
-        form = CategoriaForm()
+        formulario = CategoriaForm()
 
-    return render(request, 'core/categoria_form.html', {'form': form, 'acao': 'Criar'})
+    return render(
+        requisicao,
+        'core/categoria_form.html',
+        {'formulario': formulario, 'acao': 'Criar'},
+    )
 
 
 @login_required
-@role_required('admin')
-def categoria_update(request, pk):
+@papel_obrigatorio('admin')
+def categoria_editar(requisicao, pk):
     categoria = get_object_or_404(Categoria, pk=pk)
 
-    if request.method == 'POST':
-        form = CategoriaForm(request.POST, instance=categoria)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Categoria atualizada com sucesso.')
+    if requisicao.method == 'POST':
+        formulario = CategoriaForm(requisicao.POST, instance=categoria)
+        if formulario.is_valid():
+            formulario.save()
+            messages.success(requisicao, 'Categoria atualizada com sucesso.')
             return redirect('categoria_list')
     else:
-        form = CategoriaForm(instance=categoria)
+        formulario = CategoriaForm(instance=categoria)
 
-    return render(request, 'core/categoria_form.html', {
-        'form': form,
-        'obj': categoria,
+    return render(requisicao, 'core/categoria_form.html', {
+        'formulario': formulario,
+        'objeto': categoria,
         'acao': 'Editar',
     })
 
 
 @login_required
-@role_required('admin')
-def categoria_delete(request, pk):
+@papel_obrigatorio('admin')
+def categoria_excluir(requisicao, pk):
     categoria = get_object_or_404(Categoria, pk=pk)
 
-    if request.method == 'POST':
+    if requisicao.method == 'POST':
         categoria.delete()
-        messages.success(request, 'Categoria excluída com sucesso.')
+        messages.success(requisicao, 'Categoria excluída com sucesso.')
         return redirect('categoria_list')
 
-    return render(request, 'core/confirm_delete.html', {
-        'obj': categoria,
+    return render(requisicao, 'core/confirm_delete.html', {
+        'objeto': categoria,
         'tipo_nome': 'categoria',
-        'cancel_url_list': 'categoria_list',
+        'rota_cancelar_lista': 'categoria_list',
     })
 
 
 @login_required
-@role_required('admin')
-def local_list(request):
+@papel_obrigatorio('admin')
+def local_listar(requisicao):
     locais = Local.objects.annotate(
         num_perdidos=Count('objetos_perdidos'),
         num_encontrados=Count('objetos_encontrados'),
     )
-    return render(request, 'core/local_list.html', {'locais': locais})
+    return render(requisicao, 'core/local_list.html', {'locais': locais})
 
 
 @login_required
-@role_required('admin')
-def local_create(request):
-    if request.method == 'POST':
-        form = LocalForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Local criado com sucesso.')
+@papel_obrigatorio('admin')
+def local_criar(requisicao):
+    if requisicao.method == 'POST':
+        formulario = LocalForm(requisicao.POST)
+        if formulario.is_valid():
+            formulario.save()
+            messages.success(requisicao, 'Local criado com sucesso.')
             return redirect('local_list')
     else:
-        form = LocalForm()
+        formulario = LocalForm()
 
-    return render(request, 'core/local_form.html', {'form': form, 'acao': 'Criar'})
+    return render(
+        requisicao,
+        'core/local_form.html',
+        {'formulario': formulario, 'acao': 'Criar'},
+    )
 
 
 @login_required
-@role_required('admin')
-def local_update(request, pk):
+@papel_obrigatorio('admin')
+def local_editar(requisicao, pk):
     local = get_object_or_404(Local, pk=pk)
 
-    if request.method == 'POST':
-        form = LocalForm(request.POST, instance=local)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Local atualizado com sucesso.')
+    if requisicao.method == 'POST':
+        formulario = LocalForm(requisicao.POST, instance=local)
+        if formulario.is_valid():
+            formulario.save()
+            messages.success(requisicao, 'Local atualizado com sucesso.')
             return redirect('local_list')
     else:
-        form = LocalForm(instance=local)
+        formulario = LocalForm(instance=local)
 
-    return render(request, 'core/local_form.html', {
-        'form': form,
-        'obj': local,
+    return render(requisicao, 'core/local_form.html', {
+        'formulario': formulario,
+        'objeto': local,
         'acao': 'Editar',
     })
 
 
 @login_required
-@role_required('admin')
-def local_delete(request, pk):
+@papel_obrigatorio('admin')
+def local_excluir(requisicao, pk):
     local = get_object_or_404(Local, pk=pk)
 
-    if request.method == 'POST':
+    if requisicao.method == 'POST':
         local.delete()
-        messages.success(request, 'Local excluído com sucesso.')
+        messages.success(requisicao, 'Local excluído com sucesso.')
         return redirect('local_list')
 
-    return render(request, 'core/confirm_delete.html', {
-        'obj': local,
+    return render(requisicao, 'core/confirm_delete.html', {
+        'objeto': local,
         'tipo_nome': 'local',
-        'cancel_url_list': 'local_list',
+        'rota_cancelar_lista': 'local_list',
     })
 
 
 @login_required
-@role_required('admin')
-def admin_usuarios(request):
+@papel_obrigatorio('admin')
+def listar_usuarios_admin(requisicao):
     usuarios = User.objects.select_related('perfil').all().order_by('first_name')
-    tipo_filtro = request.GET.get('tipo')
-    busca = request.GET.get('q')
+    tipo_filtro = requisicao.GET.get('tipo')
+    busca = requisicao.GET.get('q')
 
     if tipo_filtro:
         usuarios = usuarios.filter(perfil__tipo=tipo_filtro)
@@ -206,7 +214,7 @@ def admin_usuarios(request):
             | Q(last_name__icontains=busca)
         )
 
-    return render(request, 'core/admin_usuarios.html', {
+    return render(requisicao, 'core/admin_usuarios.html', {
         'usuarios': usuarios,
         'filtro_tipo': tipo_filtro,
         'filtro_busca': busca or '',
@@ -214,42 +222,42 @@ def admin_usuarios(request):
 
 
 @login_required
-@role_required('admin')
-def admin_usuario_create(request):
-    if request.method == 'POST':
-        form = AdminCreateForm(request.POST)
-        if form.is_valid():
-            usuario = form.save()
+@papel_obrigatorio('admin')
+def criar_usuario_admin(requisicao):
+    if requisicao.method == 'POST':
+        formulario = AdminCreateForm(requisicao.POST)
+        if formulario.is_valid():
+            usuario = formulario.save()
             messages.success(
-                request,
+                requisicao,
                 f'Administrador {usuario.username} criado com sucesso.',
             )
             return redirect('admin_usuarios')
     else:
-        form = AdminCreateForm()
+        formulario = AdminCreateForm()
 
-    return render(request, 'core/admin_usuario_create.html', {'form': form})
+    return render(requisicao, 'core/admin_usuario_create.html', {'formulario': formulario})
 
 
 @login_required
-@role_required('admin')
-def admin_usuario_edit(request, pk):
+@papel_obrigatorio('admin')
+def editar_usuario_admin(requisicao, pk):
     usuario = get_object_or_404(User, pk=pk)
-    perfil_obj, _ = Perfil.objects.get_or_create(
+    perfil_usuario = Perfil.objects.get_or_create(
         user=usuario,
         defaults={'tipo': 'admin' if usuario.is_superuser else 'usuario'},
-    )
+    )[0]
 
-    if request.method == 'POST':
-        form = AdminUsuarioForm(request.POST, instance=perfil_obj)
-        if form.is_valid():
-            form.save()
-            messages.success(request, f'Usuário {usuario.username} atualizado com sucesso.')
+    if requisicao.method == 'POST':
+        formulario = AdminUsuarioForm(requisicao.POST, instance=perfil_usuario)
+        if formulario.is_valid():
+            formulario.save()
+            messages.success(requisicao, f'Usuário {usuario.username} atualizado com sucesso.')
             return redirect('admin_usuarios')
     else:
-        form = AdminUsuarioForm(instance=perfil_obj)
+        formulario = AdminUsuarioForm(instance=perfil_usuario)
 
-    return render(request, 'core/admin_usuario_edit.html', {
-        'form': form,
+    return render(requisicao, 'core/admin_usuario_edit.html', {
+        'formulario': formulario,
         'usuario': usuario,
     })

@@ -22,20 +22,20 @@
 <form method="post" class="form-card">
     {% csrf_token %}
 
-    {% if form.errors %}
+    {% if formulario.errors %}
     <div class="alert alert-error">Por favor, corrija os erros abaixo.</div>
     {% endif %}
 
     <div class="form-group">
         <label for="id_objeto_perdido">Vincular a um registro de perda (opcional)</label>
-        {{ form.objeto_perdido }}
+        {{ formulario.objeto_perdido }}
         <p class="form-help">Se você registrou a perda deste objeto no sistema, selecione aqui.</p>
     </div>
 
     <div class="form-group">
         <label for="id_descricao_comprovacao">Comprovação de propriedade *</label>
-        {{ form.descricao_comprovacao }}
-        {% if form.descricao_comprovacao.errors %}<span class="form-error">{{ form.descricao_comprovacao.errors.0 }}</span>{% endif %}
+        {{ formulario.descricao_comprovacao }}
+        {% if formulario.descricao_comprovacao.errors %}<span class="form-error">{{ formulario.descricao_comprovacao.errors.0 }}</span>{% endif %}
         <p class="form-help">Descreva características específicas que comprovem que o objeto é seu.</p>
     </div>
 

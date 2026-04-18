@@ -4,10 +4,12 @@ Comando de management para popular o banco com dados iniciais.
 Cria categorias, locais e um usuário admin padrão.
 Uso: python manage.py seed
 """
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
 from core.models import Categoria, Local, Perfil
+
+Usuario = get_user_model()
 
 
 class Command(BaseCommand):
@@ -26,8 +28,8 @@ class Command(BaseCommand):
             ('Garrafas e Copos', 'Garrafas de água, copos térmicos, squeeze, etc.'),
             ('Outros', 'Objetos que não se enquadram nas categorias acima.'),
         ]
-        for nome, desc in categorias:
-            Categoria.objects.get_or_create(nome=nome, defaults={'descricao': desc})
+        for nome, descricao in categorias:
+            Categoria.objects.get_or_create(nome=nome, defaults={'descricao': descricao})
         self.stdout.write(self.style.SUCCESS(f'  {len(categorias)} categorias criadas/verificadas.'))
 
         locais = [
@@ -38,15 +40,15 @@ class Command(BaseCommand):
             ('Quadra Esportiva', '', '', 'Quadra poliesportiva'),
             ('Estacionamento', '', '', 'Estacionamento dos alunos'),
         ]
-        for nome, predio, andar, desc in locais:
+        for nome, predio, andar, descricao in locais:
             Local.objects.get_or_create(
                 nome=nome,
                 predio=predio,
-                defaults={'andar': andar, 'descricao': desc},
+                defaults={'andar': andar, 'descricao': descricao},
             )
         self.stdout.write(self.style.SUCCESS(f'  {len(locais)} locais criados/verificados.'))
 
-        admin_user, created = User.objects.get_or_create(
+        usuario_admin, usuario_criado = Usuario.objects.get_or_create(
             username='admin',
             defaults={
                 'first_name': 'Administrador',
@@ -57,25 +59,25 @@ class Command(BaseCommand):
             },
         )
 
-        changed_fields = []
-        if not admin_user.is_staff:
-            admin_user.is_staff = True
-            changed_fields.append('is_staff')
-        if not admin_user.is_superuser:
-            admin_user.is_superuser = True
-            changed_fields.append('is_superuser')
-        if changed_fields:
-            admin_user.save(update_fields=changed_fields)
+        campos_alterados = []
+        if not usuario_admin.is_staff:
+            usuario_admin.is_staff = True
+            campos_alterados.append('is_staff')
+        if not usuario_admin.is_superuser:
+            usuario_admin.is_superuser = True
+            campos_alterados.append('is_superuser')
+        if campos_alterados:
+            usuario_admin.save(update_fields=campos_alterados)
 
-        if created:
-            admin_user.set_password('admin123')
-            admin_user.save(update_fields=['password'])
+        if usuario_criado:
+            usuario_admin.set_password('admin123')
+            usuario_admin.save(update_fields=['password'])
             self.stdout.write(self.style.SUCCESS('  Usuário admin criado (login: admin / senha: admin123)'))
         else:
             self.stdout.write('  Usuário admin já existe.')
 
         Perfil.objects.update_or_create(
-            user=admin_user,
+            user=usuario_admin,
             defaults={'tipo': 'admin', 'matricula': '000000', 'telefone': '00000000000'},
         )
 

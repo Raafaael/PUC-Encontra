@@ -1,45 +1,45 @@
 {% extends 'base.html' %}
 {% load core_tags %}
 
-{% block title %}{{ obj.titulo }} - PUC Encontra{% endblock %}
+{% block title %}{{ objeto.titulo }} - PUC Encontra{% endblock %}
 
 {% block content %}
 <div class="breadcrumb">
-    <a href="{% url 'perdidos_publico' %}">Objetos Perdidos</a> &raquo; {{ obj.titulo }}
+    <a href="{% url 'perdidos_publico' %}">Objetos Perdidos</a> &raquo; {{ objeto.titulo }}
 </div>
 
 <div class="detail-card">
     <div class="detail-header">
-        <h1>{{ obj.titulo }}</h1>
-        <span class="card-status {{ obj.status|status_class }}">{{ obj.get_status_display }}</span>
+        <h1>{{ objeto.titulo }}</h1>
+        <span class="card-status {{ objeto.status|classe_status }}">{{ objeto.get_status_display }}</span>
     </div>
 
-    {% if obj.imagem %}
-    <div class="detail-image"><img src="{{ obj.imagem.url }}" alt="{{ obj.titulo }}"></div>
+    {% if objeto.imagem %}
+    <div class="detail-image"><img src="{{ objeto.imagem.url }}" alt="{{ objeto.titulo }}"></div>
     {% endif %}
 
     <div class="detail-body">
         <div class="detail-info-grid">
             <div class="detail-info">
-                <strong>Categoria:</strong> {{ obj.categoria|default:'Não informada' }}
+                <strong>Categoria:</strong> {{ objeto.categoria|default:'Não informada' }}
             </div>
             <div class="detail-info">
-                <strong>Local:</strong> {{ obj.local_perdido|default:'Não informado' }}
+                <strong>Local:</strong> {{ objeto.local_perdido|default:'Não informado' }}
             </div>
             <div class="detail-info">
-                <strong>Data da perda:</strong> {{ obj.data_perda }}
+                <strong>Data da perda:</strong> {{ objeto.data_perda }}
             </div>
             <div class="detail-info">
-                <strong>Registrado em:</strong> {{ obj.data_registro|date:"d/m/Y H:i" }}
+                <strong>Registrado em:</strong> {{ objeto.data_registro|date:"d/m/Y H:i" }}
             </div>
             <div class="detail-info">
-                <strong>Registrado por:</strong> {{ obj.usuario.get_full_name|default:obj.usuario.username }}
+                <strong>Registrado por:</strong> {{ objeto.usuario.get_full_name|default:objeto.usuario.username }}
             </div>
         </div>
 
         <div class="detail-description">
             <h2>Descrição</h2>
-            <p>{{ obj.descricao|linebreaksbr }}</p>
+            <p>{{ objeto.descricao|linebreaksbr }}</p>
         </div>
 
         {% if mostrar_contato %}
@@ -56,22 +56,22 @@
         {% endif %}
     </div>
 
-    {% if can_manage_item %}
-    {% if can_mark_found or can_edit_or_delete %}
+    {% if pode_gerenciar_item %}
+    {% if pode_marcar_encontrado or pode_editar_ou_excluir %}
     <div class="detail-actions">
-        {% if can_mark_found %}
-        <form method="post" action="{% url 'objeto_perdido_mark_found' obj.pk %}" onsubmit="return confirm('Tem certeza de que deseja marcar este item como encontrado? Essa ação não poderá ser desfeita.');">
+        {% if pode_marcar_encontrado %}
+        <form method="post" action="{% url 'objeto_perdido_mark_found' objeto.pk %}" onsubmit="return confirm('Tem certeza de que deseja marcar este item como encontrado? Essa ação não poderá ser desfeita.');">
             {% csrf_token %}
             <button type="submit" class="btn btn-primary">Marcar como Encontrado</button>
         </form>
         {% endif %}
-        {% if can_edit_or_delete %}
-        <a href="{% url 'objeto_perdido_update' obj.pk %}" class="btn btn-secondary">Editar</a>
-        <a href="{% url 'objeto_perdido_delete' obj.pk %}" class="btn btn-danger">Excluir</a>
+        {% if pode_editar_ou_excluir %}
+        <a href="{% url 'objeto_perdido_update' objeto.pk %}" class="btn btn-secondary">Editar</a>
+        <a href="{% url 'objeto_perdido_delete' objeto.pk %}" class="btn btn-danger">Excluir</a>
         {% endif %}
     </div>
     {% endif %}
-    {% if not can_edit_or_delete %}
+    {% if not pode_editar_ou_excluir %}
     <div class="info-box">
         <p>Este registro foi encerrado como encontrado e não pode mais ser editado ou excluído.</p>
     </div>
@@ -84,15 +84,15 @@
     <h2>Possíveis Correspondências</h2>
     <p>Objetos encontrados na mesma categoria que podem ser o seu:</p>
     <div class="cards-grid">
-        {% for item in correspondencias %}
+        {% for correspondencia in correspondencias %}
         <div class="card card-match">
             <div class="card-header">
-                <span class="badge badge-categoria">{{ item.categoria }}</span>
-                <span class="card-status {{ item.status|status_class }}">{{ item.get_status_display }}</span>
+                <span class="badge badge-categoria">{{ correspondencia.categoria }}</span>
+                <span class="card-status {{ correspondencia.status|classe_status }}">{{ correspondencia.get_status_display }}</span>
             </div>
-            <h3><a href="{% url 'objeto_encontrado_detail' item.pk %}">{{ item.titulo }}</a></h3>
-            <p class="card-desc">{{ item.descricao|truncatewords:15 }}</p>
-            <p class="card-meta">{{ item.local_encontrado }} &middot; {{ item.data_encontrado }}</p>
+            <h3><a href="{% url 'objeto_encontrado_detail' correspondencia.pk %}">{{ correspondencia.titulo }}</a></h3>
+            <p class="card-desc">{{ correspondencia.descricao|truncatewords:15 }}</p>
+            <p class="card-meta">{{ correspondencia.local_encontrado }} &middot; {{ correspondencia.data_encontrado }}</p>
         </div>
         {% endfor %}
     </div>

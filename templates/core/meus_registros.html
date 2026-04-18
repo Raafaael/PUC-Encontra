@@ -37,16 +37,16 @@
     <table class="table">
         <thead><tr><th>Título</th><th>Categoria</th><th>Data da Perda</th><th>Status</th><th>Ações</th></tr></thead>
         <tbody>
-            {% for obj in perdidos %}
+            {% for objeto in perdidos %}
             <tr>
-                <td><a href="{% url 'objeto_perdido_detail' obj.pk %}">{{ obj.titulo }}</a></td>
-                <td>{{ obj.categoria|default:'-' }}</td>
-                <td>{{ obj.data_perda }}</td>
-                <td><span class="{{ obj.status|status_class }}">{{ obj.get_status_display }}</span></td>
+                <td><a href="{% url 'objeto_perdido_detail' objeto.pk %}">{{ objeto.titulo }}</a></td>
+                <td>{{ objeto.categoria|default:'-' }}</td>
+                <td>{{ objeto.data_perda }}</td>
+                <td><span class="{{ objeto.status|classe_status }}">{{ objeto.get_status_display }}</span></td>
                 <td>
-                    {% if obj.status != 'encontrado' %}
-                    <a href="{% url 'objeto_perdido_update' obj.pk %}" class="btn btn-small btn-secondary">Editar</a>
-                    <a href="{% url 'objeto_perdido_delete' obj.pk %}" class="btn btn-small btn-danger">Excluir</a>
+                    {% if objeto.status != 'encontrado' %}
+                    <a href="{% url 'objeto_perdido_update' objeto.pk %}" class="btn btn-small btn-secondary">Editar</a>
+                    <a href="{% url 'objeto_perdido_delete' objeto.pk %}" class="btn btn-small btn-danger">Excluir</a>
                     {% else %}
                     <span class="text-muted">Sem ações</span>
                     {% endif %}
@@ -66,15 +66,15 @@
     <table class="table">
         <thead><tr><th>Título</th><th>Categoria</th><th>Data Achado</th><th>Status</th><th>Ações</th></tr></thead>
         <tbody>
-            {% for obj in encontrados %}
+            {% for objeto in encontrados %}
             <tr>
-                <td><a href="{% url 'objeto_encontrado_detail' obj.pk %}">{{ obj.titulo }}</a></td>
-                <td>{{ obj.categoria|default:'-' }}</td>
-                <td>{{ obj.data_encontrado }}</td>
-                <td><span class="{{ obj.status|status_class }}">{{ obj.get_status_display }}</span></td>
+                <td><a href="{% url 'objeto_encontrado_detail' objeto.pk %}">{{ objeto.titulo }}</a></td>
+                <td>{{ objeto.categoria|default:'-' }}</td>
+                <td>{{ objeto.data_encontrado }}</td>
+                <td><span class="{{ objeto.status|classe_status }}">{{ objeto.get_status_display }}</span></td>
                 <td>
-                    <a href="{% url 'objeto_encontrado_update' obj.pk %}" class="btn btn-small btn-secondary">Editar</a>
-                    <a href="{% url 'objeto_encontrado_delete' obj.pk %}" class="btn btn-small btn-danger">Excluir</a>
+                    <a href="{% url 'objeto_encontrado_update' objeto.pk %}" class="btn btn-small btn-secondary">Editar</a>
+                    <a href="{% url 'objeto_encontrado_delete' objeto.pk %}" class="btn btn-small btn-danger">Excluir</a>
                 </td>
             </tr>
             {% endfor %}

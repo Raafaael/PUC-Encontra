@@ -23,26 +23,26 @@
 <table class="table">
     <thead><tr><th>Nome</th><th>Username</th><th>E-mail</th><th>Tipo</th><th>Ativo</th><th>Ações</th></tr></thead>
     <tbody>
-        {% for u in usuarios %}
+        {% for usuario in usuarios %}
         <tr>
-            <td>{{ u.get_full_name|default:'-' }}</td>
-            <td>{{ u.username }}</td>
-            <td>{{ u.email|default:'-' }}</td>
+            <td>{{ usuario.get_full_name|default:'-' }}</td>
+            <td>{{ usuario.username }}</td>
+            <td>{{ usuario.email|default:'-' }}</td>
             <td>
-                {% if u.perfil %}
-                <span class="badge badge-{{ u.perfil.tipo }}">{{ u.perfil.get_tipo_display }}</span>
+                {% if usuario.perfil %}
+                <span class="badge badge-{{ usuario.perfil.tipo }}">{{ usuario.perfil.get_tipo_display }}</span>
                 {% else %}
                 <span class="badge">Sem perfil</span>
                 {% endif %}
             </td>
             <td>
-                {% if u.is_active %}
+                {% if usuario.is_active %}
                 <span class="status-aprovada">Sim</span>
                 {% else %}
                 <span class="status-rejeitada">Não</span>
                 {% endif %}
             </td>
-            <td><a href="{% url 'admin_usuario_edit' u.pk %}" class="btn btn-small btn-secondary">Editar</a></td>
+            <td><a href="{% url 'admin_usuario_edit' usuario.pk %}" class="btn btn-small btn-secondary">Editar</a></td>
         </tr>
         {% endfor %}
     </tbody>

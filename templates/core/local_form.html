@@ -12,7 +12,7 @@
 <form method="post" class="form-card">
     {% csrf_token %}
 
-    {% if form.errors %}
+    {% if formulario.errors %}
     <div class="alert alert-error">Por favor, corrija os erros abaixo.</div>
     {% endif %}
 
@@ -20,27 +20,27 @@
         <div class="form-group">
             <label for="id_nome">Nome do Local *</label>
             <input type="text" name="nome" id="id_nome" required
-                   value="{{ form.nome.value|default:'' }}" placeholder="Ex: Sala 301">
-            {% if form.nome.errors %}<span class="form-error">{{ form.nome.errors.0 }}</span>{% endif %}
+                   value="{{ formulario.nome.value|default:'' }}" placeholder="Ex: Sala 301">
+            {% if formulario.nome.errors %}<span class="form-error">{{ formulario.nome.errors.0 }}</span>{% endif %}
         </div>
         <div class="form-group">
             <label for="id_predio">Prédio *</label>
             <input type="text" name="predio" id="id_predio" required
-                   value="{{ form.predio.value|default:'' }}" placeholder="Ex: Prédio 30">
-            {% if form.predio.errors %}<span class="form-error">{{ form.predio.errors.0 }}</span>{% endif %}
+                   value="{{ formulario.predio.value|default:'' }}" placeholder="Ex: Prédio 30">
+            {% if formulario.predio.errors %}<span class="form-error">{{ formulario.predio.errors.0 }}</span>{% endif %}
         </div>
     </div>
 
     <div class="form-group">
         <label for="id_andar">Andar</label>
         <input type="text" name="andar" id="id_andar"
-               value="{{ form.andar.value|default:'' }}" placeholder="Ex: 3º andar">
+               value="{{ formulario.andar.value|default:'' }}" placeholder="Ex: 3º andar">
     </div>
 
     <div class="form-group">
         <label for="id_descricao">Descrição</label>
         <textarea name="descricao" id="id_descricao" rows="3"
-                  placeholder="Detalhes adicionais...">{{ form.descricao.value|default:'' }}</textarea>
+                  placeholder="Detalhes adicionais...">{{ formulario.descricao.value|default:'' }}</textarea>
     </div>
 
     <div class="form-actions">

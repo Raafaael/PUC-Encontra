@@ -25,14 +25,14 @@
     <h2>Possíveis correspondências para seus itens</h2>
     <p class="section-desc">Objetos encontrados na mesma categoria dos seus itens perdidos:</p>
     <div class="cards-grid">
-        {% for obj in sugestoes %}
+        {% for objeto in sugestoes %}
         <div class="card card-match">
             <div class="card-header">
-                <span class="badge badge-categoria">{{ obj.categoria }}</span>
-                <span class="card-status {{ obj.status|status_class }}">{{ obj.get_status_display }}</span>
+                <span class="badge badge-categoria">{{ objeto.categoria }}</span>
+                <span class="card-status {{ objeto.status|classe_status }}">{{ objeto.get_status_display }}</span>
             </div>
-            <h3><a href="{% url 'objeto_encontrado_detail' obj.pk %}">{{ obj.titulo }}</a></h3>
-            <p class="card-meta">{{ obj.local_encontrado }} &middot; {{ obj.data_encontrado }}</p>
+            <h3><a href="{% url 'objeto_encontrado_detail' objeto.pk %}">{{ objeto.titulo }}</a></h3>
+            <p class="card-meta">{{ objeto.local_encontrado }} &middot; {{ objeto.data_encontrado }}</p>
         </div>
         {% endfor %}
     </div>
@@ -46,11 +46,11 @@
         <table class="table">
             <thead><tr><th>Título</th><th>Data</th><th>Status</th></tr></thead>
             <tbody>
-                {% for obj in meus_perdidos %}
+                {% for objeto in meus_perdidos %}
                 <tr>
-                    <td><a href="{% url 'objeto_perdido_detail' obj.pk %}">{{ obj.titulo }}</a></td>
-                    <td>{{ obj.data_perda }}</td>
-                    <td><span class="{{ obj.status|status_class }}">{{ obj.get_status_display }}</span></td>
+                    <td><a href="{% url 'objeto_perdido_detail' objeto.pk %}">{{ objeto.titulo }}</a></td>
+                    <td>{{ objeto.data_perda }}</td>
+                    <td><span class="{{ objeto.status|classe_status }}">{{ objeto.get_status_display }}</span></td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -67,11 +67,11 @@
         <table class="table">
             <thead><tr><th>Título</th><th>Data</th><th>Status</th></tr></thead>
             <tbody>
-                {% for obj in meus_encontrados %}
+                {% for objeto in meus_encontrados %}
                 <tr>
-                    <td><a href="{% url 'objeto_encontrado_detail' obj.pk %}">{{ obj.titulo }}</a></td>
-                    <td>{{ obj.data_encontrado }}</td>
-                    <td><span class="{{ obj.status|status_class }}">{{ obj.get_status_display }}</span></td>
+                    <td><a href="{% url 'objeto_encontrado_detail' objeto.pk %}">{{ objeto.titulo }}</a></td>
+                    <td>{{ objeto.data_encontrado }}</td>
+                    <td><span class="{{ objeto.status|classe_status }}">{{ objeto.get_status_display }}</span></td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -116,11 +116,11 @@
     <table class="table">
         <thead><tr><th>Categoria</th><th>Perdidos</th><th>Encontrados</th></tr></thead>
         <tbody>
-            {% for cat in stats_categorias %}
+            {% for categoria in stats_categorias %}
             <tr>
-                <td>{{ cat.nome }}</td>
-                <td>{{ cat.num_perdidos }}</td>
-                <td>{{ cat.num_encontrados }}</td>
+                <td>{{ categoria.nome }}</td>
+                <td>{{ categoria.num_perdidos }}</td>
+                <td>{{ categoria.num_encontrados }}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -134,12 +134,12 @@
     <table class="table">
         <thead><tr><th>Objeto</th><th>Solicitante</th><th>Data</th><th>Ação</th></tr></thead>
         <tbody>
-            {% for s in solicitacoes_pendentes %}
+            {% for solicitacao in solicitacoes_pendentes %}
             <tr>
-                <td>{{ s.objeto_encontrado.titulo }}</td>
-                <td>{{ s.solicitante.get_full_name|default:s.solicitante.username }}</td>
-                <td>{{ s.data_solicitacao|date:"d/m/Y" }}</td>
-                <td><a href="{% url 'solicitacao_validar' s.pk %}" class="btn btn-small btn-primary">Validar</a></td>
+                <td>{{ solicitacao.objeto_encontrado.titulo }}</td>
+                <td>{{ solicitacao.solicitante.get_full_name|default:solicitacao.solicitante.username }}</td>
+                <td>{{ solicitacao.data_solicitacao|date:"d/m/Y" }}</td>
+                <td><a href="{% url 'solicitacao_validar' solicitacao.pk %}" class="btn btn-small btn-primary">Validar</a></td>
             </tr>
             {% endfor %}
         </tbody>
@@ -154,11 +154,11 @@
         <table class="table">
             <thead><tr><th>Título</th><th>Usuário</th><th>Status</th></tr></thead>
             <tbody>
-                {% for obj in perdidos_recentes %}
+                {% for objeto in perdidos_recentes %}
                 <tr>
-                    <td><a href="{% url 'objeto_perdido_detail' obj.pk %}">{{ obj.titulo }}</a></td>
-                    <td>{{ obj.usuario.get_full_name|default:obj.usuario.username }}</td>
-                    <td><span class="{{ obj.status|status_class }}">{{ obj.get_status_display }}</span></td>
+                    <td><a href="{% url 'objeto_perdido_detail' objeto.pk %}">{{ objeto.titulo }}</a></td>
+                    <td>{{ objeto.usuario.get_full_name|default:objeto.usuario.username }}</td>
+                    <td><span class="{{ objeto.status|classe_status }}">{{ objeto.get_status_display }}</span></td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -174,11 +174,11 @@
         <table class="table">
             <thead><tr><th>Título</th><th>Encontrado por</th><th>Status</th></tr></thead>
             <tbody>
-                {% for obj in encontrados_recentes %}
+                {% for objeto in encontrados_recentes %}
                 <tr>
-                    <td><a href="{% url 'objeto_encontrado_detail' obj.pk %}">{{ obj.titulo }}</a></td>
-                    <td>{{ obj.usuario.get_full_name|default:obj.usuario.username }}</td>
-                    <td><span class="{{ obj.status|status_class }}">{{ obj.get_status_display }}</span></td>
+                    <td><a href="{% url 'objeto_encontrado_detail' objeto.pk %}">{{ objeto.titulo }}</a></td>
+                    <td>{{ objeto.usuario.get_full_name|default:objeto.usuario.username }}</td>
+                    <td><span class="{{ objeto.status|classe_status }}">{{ objeto.get_status_display }}</span></td>
                 </tr>
                 {% endfor %}
             </tbody>

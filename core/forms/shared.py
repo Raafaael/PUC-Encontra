@@ -3,39 +3,39 @@ from django.contrib.auth.models import User
 
 from ..models import Perfil
 
-EMAIL_DUPLICATE_ERROR = 'Já existe uma conta com este e-mail.'
-PERFIL_DUPLICATE_ERRORS = {
+ERRO_EMAIL_DUPLICADO = 'Já existe uma conta com este e-mail.'
+ERROS_PERFIL_DUPLICADO = {
     'matricula': 'Já existe uma conta com esta matrícula.',
     'telefone': 'Já existe uma conta com este telefone.',
 }
-PERFIL_REQUIRED_ERRORS = {
+ERROS_PERFIL_OBRIGATORIO = {
     'telefone': 'Informe um telefone para contato.',
 }
 
 
-def clean_unique_user_email(email, *, exclude_user_pk=None):
+def limpar_email_unico_usuario(email, *, excluir_pk_usuario=None):
     email = (email or '').strip()
-    qs = User.objects.filter(email__iexact=email)
-    if exclude_user_pk is not None:
-        qs = qs.exclude(pk=exclude_user_pk)
-    if qs.exists():
-        raise forms.ValidationError(EMAIL_DUPLICATE_ERROR)
+    consulta = User.objects.filter(email__iexact=email)
+    if excluir_pk_usuario is not None:
+        consulta = consulta.exclude(pk=excluir_pk_usuario)
+    if consulta.exists():
+        raise forms.ValidationError(ERRO_EMAIL_DUPLICADO)
     return email
 
 
-def clean_unique_perfil_field(field_name, value, *, exclude_perfil_pk=None, required=False):
-    value = (value or '').strip()
-    if required and not value:
-        raise forms.ValidationError(PERFIL_REQUIRED_ERRORS[field_name])
+def limpar_campo_unico_perfil(nome_campo, valor, *, excluir_pk_perfil=None, obrigatorio=False):
+    valor = (valor or '').strip()
+    if obrigatorio and not valor:
+        raise forms.ValidationError(ERROS_PERFIL_OBRIGATORIO[nome_campo])
 
-    if value:
-        qs = Perfil.objects.filter(**{field_name: value})
-        if exclude_perfil_pk is not None:
-            qs = qs.exclude(pk=exclude_perfil_pk)
-        if qs.exists():
-            raise forms.ValidationError(PERFIL_DUPLICATE_ERRORS[field_name])
+    if valor:
+        consulta = Perfil.objects.filter(**{nome_campo: valor})
+        if excluir_pk_perfil is not None:
+            consulta = consulta.exclude(pk=excluir_pk_perfil)
+        if consulta.exists():
+            raise forms.ValidationError(ERROS_PERFIL_DUPLICADO[nome_campo])
 
-    return value
+    return valor
 
 
 class BasePerfilForm(forms.ModelForm):
@@ -47,42 +47,42 @@ class BasePerfilForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['telefone'].required = True
 
-        user = getattr(self.instance, 'user', None)
-        if user:
-            self.fields['first_name'].initial = user.first_name
-            self.fields['last_name'].initial = user.last_name
-            self.fields['email'].initial = user.email
+        usuario = getattr(self.instance, 'user', None)
+        if usuario:
+            self.fields['first_name'].initial = usuario.first_name
+            self.fields['last_name'].initial = usuario.last_name
+            self.fields['email'].initial = usuario.email
 
     def clean_email(self):
-        exclude_user_pk = self.instance.user.pk if getattr(self.instance, 'user_id', None) else None
-        return clean_unique_user_email(
+        excluir_pk_usuario = self.instance.user.pk if getattr(self.instance, 'user_id', None) else None
+        return limpar_email_unico_usuario(
             self.cleaned_data.get('email'),
-            exclude_user_pk=exclude_user_pk,
+            excluir_pk_usuario=excluir_pk_usuario,
         )
 
     def clean_matricula(self):
-        return clean_unique_perfil_field(
+        return limpar_campo_unico_perfil(
             'matricula',
             self.cleaned_data.get('matricula'),
-            exclude_perfil_pk=self.instance.pk,
+            excluir_pk_perfil=self.instance.pk,
         )
 
     def clean_telefone(self):
-        return clean_unique_perfil_field(
+        return limpar_campo_unico_perfil(
             'telefone',
             self.cleaned_data.get('telefone'),
-            exclude_perfil_pk=self.instance.pk,
-            required=True,
+            excluir_pk_perfil=self.instance.pk,
+            obrigatorio=True,
         )
 
-    def _apply_user_data(self, perfil):
+    def aplicar_dados_usuario(self, perfil):
         perfil.user.first_name = self.cleaned_data['first_name']
         perfil.user.last_name = self.cleaned_data['last_name']
         perfil.user.email = self.cleaned_data['email']
 
     def save(self, commit=True):
         perfil = super().save(commit=False)
-        self._apply_user_data(perfil)
+        self.aplicar_dados_usuario(perfil)
         if commit:
             perfil.user.save()
             perfil.save()

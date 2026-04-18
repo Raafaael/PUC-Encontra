@@ -4,15 +4,15 @@ from django.dispatch import receiver
 
 from .models import Perfil
 
-User = get_user_model()
+Usuario = get_user_model()
 
 
-@receiver(post_save, sender=User)
-def ensure_user_profile(sender, instance, **kwargs):
-    perfil, _ = Perfil.objects.get_or_create(
+@receiver(post_save, sender=Usuario)
+def garantir_perfil_usuario(sender, instance, **kwargs):
+    perfil = Perfil.objects.get_or_create(
         user=instance,
         defaults={'tipo': 'admin' if instance.is_superuser else 'usuario'},
-    )
+    )[0]
 
     if instance.is_superuser and perfil.tipo != 'admin':
         perfil.tipo = 'admin'

@@ -3,223 +3,239 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 
 from ..access import (
-    can_manage_resource,
-    can_view_objeto_encontrado,
-    can_view_objeto_perdido,
-    get_user_tipo,
+    obter_tipo_usuario,
+    pode_gerenciar_recurso,
+    pode_ver_objeto_encontrado,
+    pode_ver_objeto_perdido,
 )
 from ..forms import ObjetoEncontradoForm, ObjetoPerdidoForm
 from ..models import ObjetoEncontrado, ObjetoPerdido
 
 
-def _redirect_visibility_error(request, route_name):
-    messages.error(request, 'Este item não está disponível para visualização pública.')
-    return redirect(route_name)
+def redirecionar_erro_visibilidade(requisicao, nome_rota):
+    messages.error(requisicao, 'Este item não está disponível para visualização pública.')
+    return redirect(nome_rota)
 
 
 @login_required
-def objeto_perdido_create(request):
-    perfil = getattr(request.user, 'perfil', None)
+def objeto_perdido_criar(requisicao):
+    perfil = getattr(requisicao.user, 'perfil', None)
     if not perfil or not perfil.telefone:
-        messages.warning(request, 'Preencha um telefone no seu perfil antes de registrar um item perdido.')
+        messages.warning(requisicao, 'Preencha um telefone no seu perfil antes de registrar um item perdido.')
         return redirect('perfil')
 
-    if request.method == 'POST':
-        form = ObjetoPerdidoForm(request.POST, request.FILES)
-        if form.is_valid():
-            obj = form.save(commit=False)
-            obj.usuario = request.user
-            obj.status = 'pendente'
-            obj.save()
-            messages.success(request, 'Objeto perdido registrado. Aguarde a aprovação do administrador.')
+    if requisicao.method == 'POST':
+        formulario = ObjetoPerdidoForm(requisicao.POST, requisicao.FILES)
+        if formulario.is_valid():
+            objeto = formulario.save(commit=False)
+            objeto.usuario = requisicao.user
+            objeto.status = 'pendente'
+            objeto.save()
+            messages.success(requisicao, 'Objeto perdido registrado. Aguarde a aprovação do administrador.')
             return redirect('meus_registros')
     else:
-        form = ObjetoPerdidoForm()
+        formulario = ObjetoPerdidoForm()
 
-    return render(request, 'core/objeto_perdido_form.html', {'form': form, 'acao': 'Registrar'})
+    return render(
+        requisicao,
+        'core/objeto_perdido_form.html',
+        {'formulario': formulario, 'acao': 'Registrar'},
+    )
 
 
-def objeto_perdido_detail(request, pk):
-    obj = get_object_or_404(ObjetoPerdido, pk=pk)
-    tipo = get_user_tipo(request.user)
-    can_manage_item = request.user.is_authenticated and can_manage_resource(request.user, obj.usuario)
+def objeto_perdido_detalhe(requisicao, pk):
+    objeto = get_object_or_404(ObjetoPerdido, pk=pk)
+    tipo_usuario = obter_tipo_usuario(requisicao.user)
+    pode_gerenciar_item = requisicao.user.is_authenticated and pode_gerenciar_recurso(requisicao.user, objeto.usuario)
 
-    if not can_view_objeto_perdido(request.user, obj):
-        return _redirect_visibility_error(request, 'perdidos_publico')
+    if not pode_ver_objeto_perdido(requisicao.user, objeto):
+        return redirecionar_erro_visibilidade(requisicao, 'perdidos_publico')
 
-    perfil_dono = getattr(obj.usuario, 'perfil', None)
+    perfil_dono = getattr(objeto.usuario, 'perfil', None)
     correspondencias = []
-    if obj.categoria and obj.status == 'aberto':
+    if objeto.categoria and objeto.status == 'aberto':
         correspondencias = ObjetoEncontrado.objects.filter(
-            categoria=obj.categoria,
+            categoria=objeto.categoria,
             status='disponivel',
         )[:5]
 
-    context = {
-        'obj': obj,
+    contexto = {
+        'objeto': objeto,
         'correspondencias': correspondencias,
-        'can_manage_item': can_manage_item,
-        'can_mark_found': can_manage_item and obj.status == 'aberto',
-        'can_edit_or_delete': can_manage_item and obj.status != 'encontrado',
-        'mostrar_contato': request.user.is_authenticated and request.user != obj.usuario and obj.status == 'aberto',
-        'contato_email': obj.usuario.email,
+        'pode_gerenciar_item': pode_gerenciar_item,
+        'pode_marcar_encontrado': pode_gerenciar_item and objeto.status == 'aberto',
+        'pode_editar_ou_excluir': pode_gerenciar_item and objeto.status != 'encontrado',
+        'mostrar_contato': requisicao.user.is_authenticated and requisicao.user != objeto.usuario and objeto.status == 'aberto',
+        'contato_email': objeto.usuario.email,
         'contato_telefone': perfil_dono.telefone if perfil_dono and perfil_dono.telefone else '',
-        'tipo': tipo,
+        'tipo': tipo_usuario,
     }
-    return render(request, 'core/objeto_perdido_detail.html', context)
+    return render(requisicao, 'core/objeto_perdido_detail.html', contexto)
 
 
 @login_required
-def objeto_perdido_update(request, pk):
-    obj = get_object_or_404(ObjetoPerdido, pk=pk)
+def objeto_perdido_editar(requisicao, pk):
+    objeto = get_object_or_404(ObjetoPerdido, pk=pk)
 
-    if not can_manage_resource(request.user, obj.usuario):
-        messages.error(request, 'Você não tem permissão para editar este registro.')
+    if not pode_gerenciar_recurso(requisicao.user, objeto.usuario):
+        messages.error(requisicao, 'Você não tem permissão para editar este registro.')
         return redirect('meus_registros')
 
-    if obj.status == 'encontrado':
-        messages.warning(request, 'Itens marcados como encontrados nÃ£o podem mais ser alterados.')
-        return redirect('objeto_perdido_detail', pk=obj.pk)
+    if objeto.status == 'encontrado':
+        messages.warning(requisicao, 'Itens marcados como encontrados não podem mais ser alterados.')
+        return redirect('objeto_perdido_detail', pk=objeto.pk)
 
-    if request.method == 'POST':
-        form = ObjetoPerdidoForm(request.POST, request.FILES, instance=obj)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Objeto perdido atualizado com sucesso.')
-            return redirect('objeto_perdido_detail', pk=obj.pk)
+    if requisicao.method == 'POST':
+        formulario = ObjetoPerdidoForm(requisicao.POST, requisicao.FILES, instance=objeto)
+        if formulario.is_valid():
+            formulario.save()
+            messages.success(requisicao, 'Objeto perdido atualizado com sucesso.')
+            return redirect('objeto_perdido_detail', pk=objeto.pk)
     else:
-        form = ObjetoPerdidoForm(instance=obj)
+        formulario = ObjetoPerdidoForm(instance=objeto)
 
-    return render(request, 'core/objeto_perdido_form.html', {'form': form, 'obj': obj, 'acao': 'Editar'})
+    return render(
+        requisicao,
+        'core/objeto_perdido_form.html',
+        {'formulario': formulario, 'objeto': objeto, 'acao': 'Editar'},
+    )
 
 
 @login_required
-def objeto_perdido_delete(request, pk):
-    obj = get_object_or_404(ObjetoPerdido, pk=pk)
+def objeto_perdido_excluir(requisicao, pk):
+    objeto = get_object_or_404(ObjetoPerdido, pk=pk)
 
-    if not can_manage_resource(request.user, obj.usuario):
-        messages.error(request, 'Você não tem permissão para excluir este registro.')
+    if not pode_gerenciar_recurso(requisicao.user, objeto.usuario):
+        messages.error(requisicao, 'Você não tem permissão para excluir este registro.')
         return redirect('meus_registros')
 
-    if obj.status == 'encontrado':
-        messages.warning(request, 'Itens marcados como encontrados nÃ£o podem mais ser excluÃ­dos.')
-        return redirect('objeto_perdido_detail', pk=obj.pk)
+    if objeto.status == 'encontrado':
+        messages.warning(requisicao, 'Itens marcados como encontrados não podem mais ser excluídos.')
+        return redirect('objeto_perdido_detail', pk=objeto.pk)
 
-    if request.method == 'POST':
-        obj.delete()
-        messages.success(request, 'Objeto perdido excluído com sucesso.')
+    if requisicao.method == 'POST':
+        objeto.delete()
+        messages.success(requisicao, 'Objeto perdido excluído com sucesso.')
         return redirect('meus_registros')
 
-    return render(request, 'core/confirm_delete.html', {
-        'obj': obj,
+    return render(requisicao, 'core/confirm_delete.html', {
+        'objeto': objeto,
         'tipo_nome': 'objeto perdido',
-        'cancel_url': 'objeto_perdido_detail',
+        'rota_cancelar': 'objeto_perdido_detail',
     })
 
 
 @login_required
-def objeto_perdido_mark_found(request, pk):
-    obj = get_object_or_404(ObjetoPerdido, pk=pk)
+def objeto_perdido_marcar_encontrado(requisicao, pk):
+    objeto = get_object_or_404(ObjetoPerdido, pk=pk)
 
-    if not can_manage_resource(request.user, obj.usuario):
-        messages.error(request, 'Você não tem permissão para alterar este registro.')
+    if not pode_gerenciar_recurso(requisicao.user, objeto.usuario):
+        messages.error(requisicao, 'Você não tem permissão para alterar este registro.')
         return redirect('meus_registros')
 
-    if request.method == 'POST':
-        if obj.status == 'aberto':
-            obj.status = 'encontrado'
-            obj.save(update_fields=['status'])
-            messages.success(request, 'Item marcado como encontrado com sucesso.')
+    if requisicao.method == 'POST':
+        if objeto.status == 'aberto':
+            objeto.status = 'encontrado'
+            objeto.save(update_fields=['status'])
+            messages.success(requisicao, 'Item marcado como encontrado com sucesso.')
         else:
-            messages.warning(request, 'Este item não está aberto para ser marcado como encontrado.')
+            messages.warning(requisicao, 'Este item não está aberto para ser marcado como encontrado.')
 
-    return redirect('objeto_perdido_detail', pk=obj.pk)
+    return redirect('objeto_perdido_detail', pk=objeto.pk)
 
 
 @login_required
-def objeto_encontrado_create(request):
-    if request.method == 'POST':
-        form = ObjetoEncontradoForm(request.POST, request.FILES)
-        if form.is_valid():
-            obj = form.save(commit=False)
-            obj.usuario = request.user
-            obj.status = 'pendente'
-            obj.save()
-            messages.success(request, 'Objeto encontrado registrado. Aguarde a aprovação do administrador.')
+def objeto_encontrado_criar(requisicao):
+    if requisicao.method == 'POST':
+        formulario = ObjetoEncontradoForm(requisicao.POST, requisicao.FILES)
+        if formulario.is_valid():
+            objeto = formulario.save(commit=False)
+            objeto.usuario = requisicao.user
+            objeto.status = 'pendente'
+            objeto.save()
+            messages.success(requisicao, 'Objeto encontrado registrado. Aguarde a aprovação do administrador.')
             return redirect('meus_registros')
     else:
-        form = ObjetoEncontradoForm()
+        formulario = ObjetoEncontradoForm()
 
-    return render(request, 'core/objeto_encontrado_form.html', {'form': form, 'acao': 'Registrar'})
+    return render(
+        requisicao,
+        'core/objeto_encontrado_form.html',
+        {'formulario': formulario, 'acao': 'Registrar'},
+    )
 
 
-def objeto_encontrado_detail(request, pk):
-    obj = get_object_or_404(ObjetoEncontrado, pk=pk)
-    tipo = get_user_tipo(request.user)
+def objeto_encontrado_detalhe(requisicao, pk):
+    objeto = get_object_or_404(ObjetoEncontrado, pk=pk)
+    tipo_usuario = obter_tipo_usuario(requisicao.user)
 
-    if not can_view_objeto_encontrado(request.user, obj):
-        return _redirect_visibility_error(request, 'encontrados_publico')
+    if not pode_ver_objeto_encontrado(requisicao.user, objeto):
+        return redirecionar_erro_visibilidade(requisicao, 'encontrados_publico')
 
     correspondencias = []
-    if obj.categoria and obj.status == 'disponivel':
+    if objeto.categoria and objeto.status == 'disponivel':
         correspondencias = ObjetoPerdido.objects.filter(
-            categoria=obj.categoria,
+            categoria=objeto.categoria,
             status='aberto',
         )[:5]
 
-    solicitacoes = obj.solicitacoes.select_related('solicitante').all()
+    solicitacoes = objeto.solicitacoes.select_related('solicitante').all()
     ja_solicitou = False
     minha_solicitacao = None
-    if request.user.is_authenticated:
-        minha_solicitacao = obj.solicitacoes.filter(solicitante=request.user).first()
+    if requisicao.user.is_authenticated:
+        minha_solicitacao = objeto.solicitacoes.filter(solicitante=requisicao.user).first()
         ja_solicitou = minha_solicitacao is not None
 
-    context = {
-        'obj': obj,
+    contexto = {
+        'objeto': objeto,
         'correspondencias': correspondencias,
         'solicitacoes': solicitacoes,
         'ja_solicitou': ja_solicitou,
         'minha_solicitacao': minha_solicitacao,
-        'tipo': tipo,
+        'tipo': tipo_usuario,
     }
-    return render(request, 'core/objeto_encontrado_detail.html', context)
+    return render(requisicao, 'core/objeto_encontrado_detail.html', contexto)
 
 
 @login_required
-def objeto_encontrado_update(request, pk):
-    obj = get_object_or_404(ObjetoEncontrado, pk=pk)
+def objeto_encontrado_editar(requisicao, pk):
+    objeto = get_object_or_404(ObjetoEncontrado, pk=pk)
 
-    if not can_manage_resource(request.user, obj.usuario):
-        messages.error(request, 'Você não tem permissão para editar este registro.')
+    if not pode_gerenciar_recurso(requisicao.user, objeto.usuario):
+        messages.error(requisicao, 'Você não tem permissão para editar este registro.')
         return redirect('meus_registros')
 
-    if request.method == 'POST':
-        form = ObjetoEncontradoForm(request.POST, request.FILES, instance=obj)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Objeto encontrado atualizado com sucesso.')
-            return redirect('objeto_encontrado_detail', pk=obj.pk)
+    if requisicao.method == 'POST':
+        formulario = ObjetoEncontradoForm(requisicao.POST, requisicao.FILES, instance=objeto)
+        if formulario.is_valid():
+            formulario.save()
+            messages.success(requisicao, 'Objeto encontrado atualizado com sucesso.')
+            return redirect('objeto_encontrado_detail', pk=objeto.pk)
     else:
-        form = ObjetoEncontradoForm(instance=obj)
+        formulario = ObjetoEncontradoForm(instance=objeto)
 
-    return render(request, 'core/objeto_encontrado_form.html', {'form': form, 'obj': obj, 'acao': 'Editar'})
+    return render(
+        requisicao,
+        'core/objeto_encontrado_form.html',
+        {'formulario': formulario, 'objeto': objeto, 'acao': 'Editar'},
+    )
 
 
 @login_required
-def objeto_encontrado_delete(request, pk):
-    obj = get_object_or_404(ObjetoEncontrado, pk=pk)
+def objeto_encontrado_excluir(requisicao, pk):
+    objeto = get_object_or_404(ObjetoEncontrado, pk=pk)
 
-    if not can_manage_resource(request.user, obj.usuario):
-        messages.error(request, 'Você não tem permissão para excluir este registro.')
+    if not pode_gerenciar_recurso(requisicao.user, objeto.usuario):
+        messages.error(requisicao, 'Você não tem permissão para excluir este registro.')
         return redirect('meus_registros')
 
-    if request.method == 'POST':
-        obj.delete()
-        messages.success(request, 'Objeto encontrado excluído com sucesso.')
+    if requisicao.method == 'POST':
+        objeto.delete()
+        messages.success(requisicao, 'Objeto encontrado excluído com sucesso.')
         return redirect('meus_registros')
 
-    return render(request, 'core/confirm_delete.html', {
-        'obj': obj,
+    return render(requisicao, 'core/confirm_delete.html', {
+        'objeto': objeto,
         'tipo_nome': 'objeto encontrado',
-        'cancel_url': 'objeto_encontrado_detail',
+        'rota_cancelar': 'objeto_encontrado_detail',
     })

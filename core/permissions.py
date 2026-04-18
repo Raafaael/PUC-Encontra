@@ -1,34 +1,34 @@
 """Permissões e papéis de usuário para controle de acesso e visibilidade."""
 
-PUBLIC_PERDIDO_STATUSES = {'aberto'}
-PUBLIC_ENCONTRADO_STATUSES = {'disponivel', 'reivindicado'}
+STATUS_PUBLICOS_PERDIDO = {'aberto'}
+STATUS_PUBLICOS_ENCONTRADO = {'disponivel', 'reivindicado'}
 
 
-def get_user_tipo(user):
-    if not getattr(user, 'is_authenticated', False):
+def obter_tipo_usuario(usuario):
+    if not getattr(usuario, 'is_authenticated', False):
         return 'anonimo'
-    if getattr(user, 'is_superuser', False):
+    if getattr(usuario, 'is_superuser', False):
         return 'admin'
 
-    perfil = getattr(user, 'perfil', None)
+    perfil = getattr(usuario, 'perfil', None)
     if perfil and perfil.tipo:
         return perfil.tipo
     return 'usuario'
 
 
-def user_has_role(user, *roles):
-    return get_user_tipo(user) in roles
+def usuario_tem_papel(usuario, *papeis):
+    return obter_tipo_usuario(usuario) in papeis
 
 
-def can_manage_resource(user, owner):
-    return getattr(user, 'is_authenticated', False) and (
-        user == owner or user_has_role(user, 'admin')
+def pode_gerenciar_recurso(usuario, dono):
+    return getattr(usuario, 'is_authenticated', False) and (
+        usuario == dono or usuario_tem_papel(usuario, 'admin')
     )
 
 
-def can_view_objeto_perdido(user, obj):
-    return can_manage_resource(user, obj.usuario) or obj.status in PUBLIC_PERDIDO_STATUSES
+def pode_ver_objeto_perdido(usuario, objeto):
+    return pode_gerenciar_recurso(usuario, objeto.usuario) or objeto.status in STATUS_PUBLICOS_PERDIDO
 
 
-def can_view_objeto_encontrado(user, obj):
-    return can_manage_resource(user, obj.usuario) or obj.status in PUBLIC_ENCONTRADO_STATUSES
+def pode_ver_objeto_encontrado(usuario, objeto):
+    return pode_gerenciar_recurso(usuario, objeto.usuario) or objeto.status in STATUS_PUBLICOS_ENCONTRADO

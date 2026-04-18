@@ -14,200 +14,216 @@ from django.utils import timezone
 from ..forms import PerfilForm, RegistroForm
 from ..models import CodigoVerificacao, Perfil
 
-PENDING_REGISTRATION_SESSION_KEY = 'pending_registration'
+CHAVE_SESSAO_CADASTRO_PENDENTE = 'cadastro_pendente'
 
 
-def _build_pending_registration(form):
+def montar_cadastro_pendente(formulario):
     return {
-        'username': form.cleaned_data['username'],
-        'first_name': form.cleaned_data['first_name'],
-        'last_name': form.cleaned_data['last_name'],
-        'email': form.cleaned_data['email'],
-        'password': make_password(form.cleaned_data['password1']),
-        'matricula': form.cleaned_data.get('matricula', ''),
-        'telefone': form.cleaned_data['telefone'],
-        'tipo_cadastro': form.cleaned_data.get('tipo_cadastro', 'usuario'),
-        'codigo_admin': form.cleaned_data.get('codigo_admin', ''),
+        'nome_usuario': formulario.cleaned_data['username'],
+        'nome': formulario.cleaned_data['first_name'],
+        'sobrenome': formulario.cleaned_data['last_name'],
+        'email': formulario.cleaned_data['email'],
+        'senha': make_password(formulario.cleaned_data['password1']),
+        'matricula': formulario.cleaned_data.get('matricula', ''),
+        'telefone': formulario.cleaned_data['telefone'],
+        'tipo_cadastro': formulario.cleaned_data.get('tipo_cadastro', 'usuario'),
+        'codigo_admin': formulario.cleaned_data.get('codigo_admin', ''),
         'codigo': CodigoVerificacao.gerar_codigo(),
         'criado_em': timezone.now().isoformat(),
     }
 
 
-def _get_pending_registration(request):
-    return request.session.get(PENDING_REGISTRATION_SESSION_KEY)
+def obter_cadastro_pendente(requisicao):
+    return requisicao.session.get(CHAVE_SESSAO_CADASTRO_PENDENTE)
 
 
-def _save_pending_registration(request, pending_registration):
-    request.session[PENDING_REGISTRATION_SESSION_KEY] = pending_registration
-    request.session.modified = True
+def salvar_cadastro_pendente(requisicao, cadastro_pendente):
+    requisicao.session[CHAVE_SESSAO_CADASTRO_PENDENTE] = cadastro_pendente
+    requisicao.session.modified = True
 
 
-def _clear_pending_registration(request):
-    request.session.pop(PENDING_REGISTRATION_SESSION_KEY, None)
+def limpar_cadastro_pendente(requisicao):
+    requisicao.session.pop(CHAVE_SESSAO_CADASTRO_PENDENTE, None)
 
 
-def _pending_registration_expired(pending_registration):
-    created_at = pending_registration.get('criado_em')
-    if not created_at:
+def cadastro_pendente_expirou(cadastro_pendente):
+    criado_em = cadastro_pendente.get('criado_em')
+    if not criado_em:
         return True
 
-    created_at_dt = datetime.fromisoformat(created_at)
-    if timezone.is_naive(created_at_dt):
-        created_at_dt = timezone.make_aware(created_at_dt, timezone.get_current_timezone())
+    data_criacao = datetime.fromisoformat(criado_em)
+    if timezone.is_naive(data_criacao):
+        data_criacao = timezone.make_aware(
+            data_criacao,
+            timezone.get_current_timezone(),
+        )
 
-    return timezone.now() > created_at_dt + timedelta(minutes=30)
+    return timezone.now() > data_criacao + timedelta(minutes=30)
 
 
-def _pending_registration_conflict(pending_registration):
-    if User.objects.filter(username=pending_registration['username']).exists():
+def obter_erro_conflito_cadastro(cadastro_pendente):
+    if User.objects.filter(username=cadastro_pendente['nome_usuario']).exists():
         return 'Este nome de usuário acabou de ser utilizado. Faça um novo cadastro.'
-    if User.objects.filter(email__iexact=pending_registration['email']).exists():
+    if User.objects.filter(email__iexact=cadastro_pendente['email']).exists():
         return 'Este e-mail já está em uso. Faça um novo cadastro.'
-    if pending_registration.get('matricula') and Perfil.objects.filter(
-        matricula=pending_registration['matricula']
+    if cadastro_pendente.get('matricula') and Perfil.objects.filter(
+        matricula=cadastro_pendente['matricula']
     ).exists():
         return 'Esta matrícula já está em uso. Faça um novo cadastro.'
-    if Perfil.objects.filter(telefone=pending_registration['telefone']).exists():
+    if Perfil.objects.filter(telefone=cadastro_pendente['telefone']).exists():
         return 'Este telefone já está em uso. Faça um novo cadastro.'
     return None
 
 
-def _send_verification_email(pending_registration, *, resend=False):
-    greeting_name = pending_registration['first_name']
-    verification_code = pending_registration['codigo']
-    subject = (
+def enviar_email_verificacao(cadastro_pendente, *, reenviar=False):
+    nome_destinatario = cadastro_pendente['nome']
+    codigo_verificacao = cadastro_pendente['codigo']
+    assunto = (
         'PUC Encontra - Novo Código de Verificação'
-        if resend
+        if reenviar
         else 'PUC Encontra - Código de Verificação'
     )
+
     send_mail(
-        subject=subject,
+        subject=assunto,
         message=(
-            f'Olá, {greeting_name}!\n\n'
-            f'Seu código de verificação é: {verification_code}\n\n'
+            f'Olá, {nome_destinatario}!\n\n'
+            f'Seu código de verificação é: {codigo_verificacao}\n\n'
             'Digite este código na página de verificação para concluir seu cadastro.\n'
             'O código expira em 30 minutos.\n\n'
             'Atenciosamente,\n'
             'Equipe PUC Encontra'
         ),
         from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[pending_registration['email']],
+        recipient_list=[cadastro_pendente['email']],
     )
 
 
-def registro(request):
-    if request.user.is_authenticated:
+def registro(requisicao):
+    if requisicao.user.is_authenticated:
         return redirect('dashboard')
 
-    if request.method == 'POST':
-        form = RegistroForm(request.POST)
-        if form.is_valid():
-            pending_registration = _build_pending_registration(form)
-            _save_pending_registration(request, pending_registration)
-            _send_verification_email(pending_registration)
+    if requisicao.method == 'POST':
+        formulario = RegistroForm(requisicao.POST)
+        if formulario.is_valid():
+            cadastro_pendente = montar_cadastro_pendente(formulario)
+            salvar_cadastro_pendente(requisicao, cadastro_pendente)
+            enviar_email_verificacao(cadastro_pendente)
             return redirect('verificar_email')
     else:
-        form = RegistroForm()
+        formulario = RegistroForm()
 
-    return render(request, 'registration/registro.html', {'form': form})
+    return render(requisicao, 'registration/registro.html', {'formulario': formulario})
 
 
-def verificar_email(request):
-    pending_registration = _get_pending_registration(request)
-    if not pending_registration:
+def verificar_email(requisicao):
+    cadastro_pendente = obter_cadastro_pendente(requisicao)
+    if not cadastro_pendente:
         return redirect('registro')
 
     erro = None
-    if request.method == 'POST':
-        if 'reenviar' in request.POST:
-            pending_registration['codigo'] = CodigoVerificacao.gerar_codigo()
-            pending_registration['criado_em'] = timezone.now().isoformat()
-            _save_pending_registration(request, pending_registration)
-            _send_verification_email(pending_registration, resend=True)
-            messages.success(request, 'Novo código enviado para seu e-mail.')
+    if requisicao.method == 'POST':
+        if 'reenviar' in requisicao.POST:
+            cadastro_pendente['codigo'] = CodigoVerificacao.gerar_codigo()
+            cadastro_pendente['criado_em'] = timezone.now().isoformat()
+            salvar_cadastro_pendente(requisicao, cadastro_pendente)
+            enviar_email_verificacao(cadastro_pendente, reenviar=True)
+            messages.success(requisicao, 'Novo código enviado para seu e-mail.')
             return redirect('verificar_email')
 
-        codigo_digitado = request.POST.get('codigo', '').strip()
-        if _pending_registration_expired(pending_registration):
+        codigo_digitado = requisicao.POST.get('codigo', '').strip()
+        if cadastro_pendente_expirou(cadastro_pendente):
             erro = 'Código expirado. Solicite um novo código.'
-        elif pending_registration['codigo'] != codigo_digitado:
+        elif cadastro_pendente['codigo'] != codigo_digitado:
             erro = 'Código incorreto. Tente novamente.'
         else:
-            conflict_error = _pending_registration_conflict(pending_registration)
-            if conflict_error:
-                _clear_pending_registration(request)
-                messages.error(request, conflict_error)
+            erro_conflito = obter_erro_conflito_cadastro(cadastro_pendente)
+            if erro_conflito:
+                limpar_cadastro_pendente(requisicao)
+                messages.error(requisicao, erro_conflito)
                 return redirect('registro')
 
-            user = User(
-                username=pending_registration['username'],
-                first_name=pending_registration['first_name'],
-                last_name=pending_registration['last_name'],
-                email=pending_registration['email'],
-                password=pending_registration['password'],
+            usuario = User(
+                username=cadastro_pendente['nome_usuario'],
+                first_name=cadastro_pendente['nome'],
+                last_name=cadastro_pendente['sobrenome'],
+                email=cadastro_pendente['email'],
+                password=cadastro_pendente['senha'],
                 is_active=True,
             )
-            user.save()
+            usuario.save()
+
             Perfil.objects.update_or_create(
-                user=user,
+                user=usuario,
                 defaults={
-                    'tipo': pending_registration.get('tipo_cadastro', 'usuario'),
-                    'matricula': pending_registration.get('matricula', ''),
-                    'telefone': pending_registration['telefone'],
+                    'tipo': cadastro_pendente.get('tipo_cadastro', 'usuario'),
+                    'matricula': cadastro_pendente.get('matricula', ''),
+                    'telefone': cadastro_pendente['telefone'],
                 },
             )
-            _clear_pending_registration(request)
-            login(request, user, backend='core.backends.EmailOuUsernameBackend')
-            messages.success(request, f'Bem-vindo(a), {user.first_name}! Conta verificada com sucesso.')
+
+            limpar_cadastro_pendente(requisicao)
+            login(requisicao, usuario, backend='core.backends.EmailOuUsernameBackend')
+            messages.success(
+                requisicao,
+                f'Bem-vindo(a), {usuario.first_name}! Conta verificada com sucesso.',
+            )
             return redirect('dashboard')
 
-    return render(request, 'registration/verificar_email.html', {
-        'email': pending_registration['email'],
-        'erro': erro,
-    })
+    return render(
+        requisicao,
+        'registration/verificar_email.html',
+        {
+            'email': cadastro_pendente['email'],
+            'erro': erro,
+        },
+    )
 
 
 @login_required
-def perfil(request):
-    perfil_obj, _ = Perfil.objects.get_or_create(user=request.user, defaults={'tipo': 'usuario'})
+def perfil(requisicao):
+    perfil_usuario = Perfil.objects.get_or_create(
+        user=requisicao.user,
+        defaults={'tipo': 'usuario'},
+    )[0]
 
-    if request.method == 'POST':
-        form = PerfilForm(request.POST, instance=perfil_obj)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Perfil atualizado com sucesso.')
+    if requisicao.method == 'POST':
+        formulario = PerfilForm(requisicao.POST, instance=perfil_usuario)
+        if formulario.is_valid():
+            formulario.save()
+            messages.success(requisicao, 'Perfil atualizado com sucesso.')
             return redirect('perfil')
     else:
-        form = PerfilForm(instance=perfil_obj)
+        formulario = PerfilForm(instance=perfil_usuario)
 
-    return render(request, 'core/perfil.html', {'form': form})
+    return render(requisicao, 'core/perfil.html', {'formulario': formulario})
 
 
 @login_required
-def trocar_senha(request):
-    if request.method == 'POST':
-        form = PasswordChangeForm(request.user, request.POST)
-        if form.is_valid():
-            user = form.save()
-            update_session_auth_hash(request, user)
-            messages.success(request, 'Senha alterada com sucesso.')
+def trocar_senha(requisicao):
+    if requisicao.method == 'POST':
+        formulario = PasswordChangeForm(requisicao.user, requisicao.POST)
+        if formulario.is_valid():
+            usuario = formulario.save()
+            update_session_auth_hash(requisicao, usuario)
+            messages.success(requisicao, 'Senha alterada com sucesso.')
             return redirect('perfil')
     else:
-        form = PasswordChangeForm(request.user)
+        formulario = PasswordChangeForm(requisicao.user)
 
-    return render(request, 'core/trocar_senha.html', {'form': form})
+    return render(requisicao, 'core/trocar_senha.html', {'formulario': formulario})
 
 
 @login_required
-def desativar_conta(request):
-    if request.method == 'POST':
-        request.user.is_active = False
-        request.user.save(update_fields=['is_active'])
-        logout(request)
+def desativar_conta(requisicao):
+    if requisicao.method == 'POST':
+        requisicao.user.is_active = False
+        requisicao.user.save(update_fields=['is_active'])
+        logout(requisicao)
         messages.info(
-            request,
+            requisicao,
             'Sua conta foi desativada. Entre em contato com o administrador para reativá-la.',
         )
         return redirect('home')
 
-    return render(request, 'core/desativar_conta.html')
+    return render(requisicao, 'core/desativar_conta.html')

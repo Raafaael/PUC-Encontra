@@ -3,74 +3,74 @@ from django.contrib.auth.models import User
 from django.db.models import Count
 from django.shortcuts import render
 
-from ..access import get_user_tipo
+from ..access import obter_tipo_usuario
 from ..models import Categoria, ObjetoEncontrado, ObjetoPerdido, SolicitacaoPosse
 
 
 @login_required
-def dashboard(request):
-    user = request.user
-    tipo = get_user_tipo(user)
-    context = {'tipo': tipo}
+def dashboard(requisicao):
+    usuario = requisicao.user
+    tipo = obter_tipo_usuario(usuario)
+    contexto = {'tipo': tipo}
 
     if tipo == 'usuario':
-        context['meus_perdidos'] = ObjetoPerdido.objects.filter(usuario=user)[:5]
-        context['meus_encontrados'] = ObjetoEncontrado.objects.filter(usuario=user)[:5]
-        context['encontrados_recentes'] = ObjetoEncontrado.objects.filter(status='disponivel')[:5]
+        contexto['meus_perdidos'] = ObjetoPerdido.objects.filter(usuario=usuario)[:5]
+        contexto['meus_encontrados'] = ObjetoEncontrado.objects.filter(usuario=usuario)[:5]
+        contexto['encontrados_recentes'] = ObjetoEncontrado.objects.filter(status='disponivel')[:5]
         categorias_perdidas = ObjetoPerdido.objects.filter(
-            usuario=user,
+            usuario=usuario,
             status='aberto',
         ).values_list('categoria_id', flat=True)
-        context['sugestoes'] = ObjetoEncontrado.objects.filter(
+        contexto['sugestoes'] = ObjetoEncontrado.objects.filter(
             categoria_id__in=categorias_perdidas,
             status='disponivel',
-        ).exclude(usuario=user)[:5]
+        ).exclude(usuario=usuario)[:5]
     else:
-        context['total_perdidos'] = ObjetoPerdido.objects.count()
-        context['total_encontrados'] = ObjetoEncontrado.objects.count()
-        context['total_devolvidos'] = ObjetoEncontrado.objects.filter(status='devolvido').count()
-        context['total_usuarios'] = User.objects.count()
-        context['pendentes_aprovacao'] = (
+        contexto['total_perdidos'] = ObjetoPerdido.objects.count()
+        contexto['total_encontrados'] = ObjetoEncontrado.objects.count()
+        contexto['total_devolvidos'] = ObjetoEncontrado.objects.filter(status='devolvido').count()
+        contexto['total_usuarios'] = User.objects.count()
+        contexto['pendentes_aprovacao'] = (
             ObjetoPerdido.objects.filter(status='pendente').count()
             + ObjetoEncontrado.objects.filter(status='pendente').count()
         )
-        context['solicitacoes_pendentes'] = SolicitacaoPosse.objects.filter(status='pendente')[:10]
-        context['perdidos_recentes'] = ObjetoPerdido.objects.all()[:5]
-        context['encontrados_recentes'] = ObjetoEncontrado.objects.all()[:5]
-        context['stats_categorias'] = Categoria.objects.annotate(
+        contexto['solicitacoes_pendentes'] = SolicitacaoPosse.objects.filter(status='pendente')[:10]
+        contexto['perdidos_recentes'] = ObjetoPerdido.objects.all()[:5]
+        contexto['encontrados_recentes'] = ObjetoEncontrado.objects.all()[:5]
+        contexto['stats_categorias'] = Categoria.objects.annotate(
             num_perdidos=Count('objetos_perdidos'),
             num_encontrados=Count('objetos_encontrados'),
         ).order_by('-num_perdidos')[:5]
 
-    return render(request, 'core/dashboard.html', context)
+    return render(requisicao, 'core/dashboard.html', contexto)
 
 
 @login_required
-def meus_registros(request):
-    user = request.user
-    tipo = get_user_tipo(user)
-    filtro_tipo = request.GET.get('tipo_item', '')
-    filtro_status = request.GET.get('status', '')
+def meus_registros(requisicao):
+    usuario = requisicao.user
+    tipo = obter_tipo_usuario(usuario)
+    filtro_tipo = requisicao.GET.get('tipo_item', '')
+    filtro_status = requisicao.GET.get('status', '')
 
-    perdidos = ObjetoPerdido.objects.filter(usuario=user)
-    encontrados = ObjetoEncontrado.objects.filter(usuario=user)
+    perdidos = ObjetoPerdido.objects.filter(usuario=usuario)
+    encontrados = ObjetoEncontrado.objects.filter(usuario=usuario)
 
     if filtro_status:
         perdidos = perdidos.filter(status=filtro_status)
         encontrados = encontrados.filter(status=filtro_status)
 
-    context = {
+    contexto = {
         'tipo': tipo,
         'filtro_tipo': filtro_tipo,
         'filtro_status': filtro_status,
     }
 
     if filtro_tipo == 'perdido':
-        context['perdidos'] = perdidos
+        contexto['perdidos'] = perdidos
     elif filtro_tipo == 'encontrado':
-        context['encontrados'] = encontrados
+        contexto['encontrados'] = encontrados
     else:
-        context['perdidos'] = perdidos
-        context['encontrados'] = encontrados
+        contexto['perdidos'] = perdidos
+        contexto['encontrados'] = encontrados
 
-    return render(request, 'core/meus_registros.html', context)
+    return render(requisicao, 'core/meus_registros.html', contexto)

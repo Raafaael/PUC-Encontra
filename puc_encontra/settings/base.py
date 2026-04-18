@@ -12,16 +12,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 load_dotenv(BASE_DIR / ".env")
 
 
-def env_bool(name, default=False):
-    value = os.getenv(name)
-    if value is None:
-        return default
-    return value.strip().lower() in {"1", "true", "yes", "on"}
+def ambiente_booleano(nome, padrao=False):
+    valor = os.getenv(nome)
+    if valor is None:
+        return padrao
+    return valor.strip().lower() in {"1", "true", "yes", "on"}
 
 
-def env_list(name, default=""):
-    raw_value = os.getenv(name, default)
-    return [item.strip() for item in raw_value.split(",") if item.strip()]
+def ambiente_lista(nome, padrao=""):
+    valor_bruto = os.getenv(nome, padrao)
+    return [item.strip() for item in valor_bruto.split(",") if item.strip()]
 
 
 SECRET_KEY = os.getenv(
@@ -29,10 +29,10 @@ SECRET_KEY = os.getenv(
     "django-insecure-puc-encontra-dev-key-change-in-production",
 )
 
-DEBUG = env_bool("DJANGO_DEBUG", False)
+DEBUG = ambiente_booleano("DJANGO_DEBUG", False)
 
-ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
-CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS")
+ALLOWED_HOSTS = ambiente_lista("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
+CSRF_TRUSTED_ORIGINS = ambiente_lista("DJANGO_CSRF_TRUSTED_ORIGINS")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -109,7 +109,7 @@ STORAGES = {
     },
 }
 
-SERVE_MEDIA_FILES = env_bool("DJANGO_SERVE_MEDIA_FILES", DEBUG)
+SERVE_MEDIA_FILES = ambiente_booleano("DJANGO_SERVE_MEDIA_FILES", DEBUG)
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -133,8 +133,8 @@ EMAIL_BACKEND = os.getenv(
 )
 EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
 EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
-EMAIL_USE_TLS = env_bool("EMAIL_USE_TLS", True)
-EMAIL_USE_SSL = env_bool("EMAIL_USE_SSL", False)
+EMAIL_USE_TLS = ambiente_booleano("EMAIL_USE_TLS", True)
+EMAIL_USE_SSL = ambiente_booleano("EMAIL_USE_SSL", False)
 DEFAULT_FROM_EMAIL = os.getenv(
     "DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "noreply@pucencontra.com"
 )

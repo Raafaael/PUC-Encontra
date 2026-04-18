@@ -12,16 +12,16 @@
 <table class="table">
     <thead><tr><th>Nome</th><th>Prédio</th><th>Andar</th><th>Perdidos</th><th>Encontrados</th><th>Ações</th></tr></thead>
     <tbody>
-        {% for loc in locais %}
+        {% for local in locais %}
         <tr>
-            <td><strong>{{ loc.nome }}</strong></td>
-            <td>{{ loc.predio }}</td>
-            <td>{{ loc.andar|default:'-' }}</td>
-            <td>{{ loc.num_perdidos }}</td>
-            <td>{{ loc.num_encontrados }}</td>
+            <td><strong>{{ local.nome }}</strong></td>
+            <td>{{ local.predio }}</td>
+            <td>{{ local.andar|default:'-' }}</td>
+            <td>{{ local.num_perdidos }}</td>
+            <td>{{ local.num_encontrados }}</td>
             <td>
-                <a href="{% url 'local_update' loc.pk %}" class="btn btn-small btn-secondary">Editar</a>
-                <a href="{% url 'local_delete' loc.pk %}" class="btn btn-small btn-danger">Excluir</a>
+                <a href="{% url 'local_update' local.pk %}" class="btn btn-small btn-secondary">Editar</a>
+                <a href="{% url 'local_delete' local.pk %}" class="btn btn-small btn-danger">Excluir</a>
             </td>
         </tr>
         {% endfor %}

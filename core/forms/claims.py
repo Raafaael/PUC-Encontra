@@ -18,11 +18,11 @@ class SolicitacaoForm(forms.ModelForm):
             }),
         }
 
-    def __init__(self, *args, user=None, **kwargs):
+    def __init__(self, *args, usuario=None, **kwargs):
         super().__init__(*args, **kwargs)
-        if user:
+        if usuario:
             self.fields['objeto_perdido'].queryset = ObjetoPerdido.objects.filter(
-                usuario=user,
+                usuario=usuario,
                 status='aberto',
             )
         self.fields['objeto_perdido'].required = False

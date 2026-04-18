@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django import forms
 
 from ..models import Categoria, Local, Perfil
-from .shared import BasePerfilForm, clean_unique_perfil_field, clean_unique_user_email
+from .shared import BasePerfilForm, limpar_campo_unico_perfil, limpar_email_unico_usuario
 
 
 class AprovarItemForm(forms.Form):
@@ -39,9 +39,9 @@ class AdminUsuarioForm(BasePerfilForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        user = getattr(self.instance, 'user', None)
-        if user:
-            self.fields['is_active'].initial = user.is_active
+        usuario = getattr(self.instance, 'user', None)
+        if usuario:
+            self.fields['is_active'].initial = usuario.is_active
 
     def save(self, commit=True):
         perfil = super().save(commit=False)
@@ -82,34 +82,34 @@ class AdminCreateForm(UserCreationForm):
         fields = ['username', 'first_name', 'last_name', 'email', 'password1', 'password2']
 
     def clean_email(self):
-        return clean_unique_user_email(self.cleaned_data.get('email'))
+        return limpar_email_unico_usuario(self.cleaned_data.get('email'))
 
     def clean_matricula(self):
-        return clean_unique_perfil_field('matricula', self.cleaned_data.get('matricula'))
+        return limpar_campo_unico_perfil('matricula', self.cleaned_data.get('matricula'))
 
     def clean_telefone(self):
-        return clean_unique_perfil_field(
+        return limpar_campo_unico_perfil(
             'telefone',
             self.cleaned_data.get('telefone'),
-            required=True,
+            obrigatorio=True,
         )
 
     def save(self, commit=True):
-        user = super().save(commit=False)
-        user.email = self.cleaned_data['email']
-        user.first_name = self.cleaned_data['first_name']
-        user.last_name = self.cleaned_data['last_name']
-        user.is_active = True
-        user.is_staff = True
-        user.is_superuser = True
+        usuario = super().save(commit=False)
+        usuario.email = self.cleaned_data['email']
+        usuario.first_name = self.cleaned_data['first_name']
+        usuario.last_name = self.cleaned_data['last_name']
+        usuario.is_active = True
+        usuario.is_staff = True
+        usuario.is_superuser = True
         if commit:
-            user.save()
-            self.save_perfil(user)
-        return user
+            usuario.save()
+            self.salvar_perfil(usuario)
+        return usuario
 
-    def save_perfil(self, user):
+    def salvar_perfil(self, usuario):
         Perfil.objects.update_or_create(
-            user=user,
+            user=usuario,
             defaults={
                 'tipo': 'admin',
                 'matricula': self.cleaned_data.get('matricula', ''),

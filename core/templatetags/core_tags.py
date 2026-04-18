@@ -1,17 +1,17 @@
 from django import template
 
-from core.access import get_user_tipo
+from core.access import obter_tipo_usuario
 
 register = template.Library()
 
 
 @register.filter
-def tipo_usuario(user):
-    return get_user_tipo(user)
+def tipo_usuario(usuario):
+    return obter_tipo_usuario(usuario)
 
 
 @register.filter
-def status_class(status):
+def classe_status(status):
     mapa = {
         'aberto': 'status-aberto',
         'encontrado': 'status-encontrado',
@@ -27,11 +27,11 @@ def status_class(status):
 
 
 @register.simple_tag
-def query_string(request, **kwargs):
-    params = request.GET.copy()
-    for key, value in kwargs.items():
-        if value:
-            params[key] = value
-        elif key in params:
-            del params[key]
-    return f'?{params.urlencode()}' if params else ''
+def string_consulta(requisicao, **kwargs):
+    parametros = requisicao.GET.copy()
+    for chave, valor in kwargs.items():
+        if valor:
+            parametros[chave] = valor
+        elif chave in parametros:
+            del parametros[chave]
+    return f'?{parametros.urlencode()}' if parametros else ''

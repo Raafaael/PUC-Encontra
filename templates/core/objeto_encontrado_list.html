@@ -15,14 +15,14 @@
     <input type="text" name="q" value="{{ filtro_busca }}" placeholder="Buscar por título ou descrição...">
     <select name="categoria">
         <option value="">Todas as categorias</option>
-        {% for cat in categorias %}
-        <option value="{{ cat.pk }}" {% if filtro_categoria == cat.pk|stringformat:"d" %}selected{% endif %}>{{ cat.nome }}</option>
+        {% for categoria in categorias %}
+        <option value="{{ categoria.pk }}" {% if filtro_categoria == categoria.pk|stringformat:"d" %}selected{% endif %}>{{ categoria.nome }}</option>
         {% endfor %}
     </select>
     <select name="local">
         <option value="">Todos os locais</option>
-        {% for loc in locais %}
-        <option value="{{ loc.pk }}" {% if filtro_local == loc.pk|stringformat:"d" %}selected{% endif %}>{{ loc }}</option>
+        {% for local in locais %}
+        <option value="{{ local.pk }}" {% if filtro_local == local.pk|stringformat:"d" %}selected{% endif %}>{{ local }}</option>
         {% endfor %}
     </select>
     <button type="submit" class="btn btn-secondary">Filtrar</button>
@@ -30,21 +30,21 @@
 
 {% if objetos %}
 <div class="cards-grid">
-    {% for obj in objetos %}
+    {% for objeto in objetos %}
     <div class="card">
-        {% if obj.imagem %}
-        <div class="card-image"><img src="{{ obj.imagem.url }}" alt="{{ obj.titulo }}"></div>
+        {% if objeto.imagem %}
+        <div class="card-image"><img src="{{ objeto.imagem.url }}" alt="{{ objeto.titulo }}"></div>
         {% endif %}
         <div class="card-header">
-            <span class="badge badge-categoria">{{ obj.categoria|default:'Sem categoria' }}</span>
-            <span class="card-status {{ obj.status|status_class }}">{{ obj.get_status_display }}</span>
+            <span class="badge badge-categoria">{{ objeto.categoria|default:'Sem categoria' }}</span>
+            <span class="card-status {{ objeto.status|classe_status }}">{{ objeto.get_status_display }}</span>
         </div>
-        <h3><a href="{% url 'objeto_encontrado_detail' obj.pk %}">{{ obj.titulo }}</a></h3>
-        <p class="card-desc">{{ obj.descricao|truncatewords:20 }}</p>
+        <h3><a href="{% url 'objeto_encontrado_detail' objeto.pk %}">{{ objeto.titulo }}</a></h3>
+        <p class="card-desc">{{ objeto.descricao|truncatewords:20 }}</p>
         <p class="card-meta">
-            {{ obj.local_encontrado|default:'Local não informado' }} &middot; {{ obj.data_encontrado }}
+            {{ objeto.local_encontrado|default:'Local não informado' }} &middot; {{ objeto.data_encontrado }}
         </p>
-        <p class="card-meta">Encontrado por: {{ obj.usuario.get_full_name|default:obj.usuario.username }}</p>
+        <p class="card-meta">Encontrado por: {{ objeto.usuario.get_full_name|default:objeto.usuario.username }}</p>
     </div>
     {% endfor %}
 </div>

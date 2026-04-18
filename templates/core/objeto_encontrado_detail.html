@@ -1,59 +1,59 @@
 {% extends 'base.html' %}
 {% load core_tags %}
 
-{% block title %}{{ obj.titulo }} - PUC Encontra{% endblock %}
+{% block title %}{{ objeto.titulo }} - PUC Encontra{% endblock %}
 
 {% block content %}
 <div class="breadcrumb">
-    <a href="{% url 'encontrados_publico' %}">Objetos Encontrados</a> &raquo; {{ obj.titulo }}
+    <a href="{% url 'encontrados_publico' %}">Objetos Encontrados</a> &raquo; {{ objeto.titulo }}
 </div>
 
 <div class="detail-card">
     <div class="detail-header">
-        <h1>{{ obj.titulo }}</h1>
-        <span class="card-status {{ obj.status|status_class }}">{{ obj.get_status_display }}</span>
+        <h1>{{ objeto.titulo }}</h1>
+        <span class="card-status {{ objeto.status|classe_status }}">{{ objeto.get_status_display }}</span>
     </div>
 
-    {% if obj.imagem %}
-    <div class="detail-image"><img src="{{ obj.imagem.url }}" alt="{{ obj.titulo }}"></div>
+    {% if objeto.imagem %}
+    <div class="detail-image"><img src="{{ objeto.imagem.url }}" alt="{{ objeto.titulo }}"></div>
     {% endif %}
 
     <div class="detail-body">
         <div class="detail-info-grid">
             <div class="detail-info">
-                <strong>Categoria:</strong> {{ obj.categoria|default:'Não informada' }}
+                <strong>Categoria:</strong> {{ objeto.categoria|default:'Não informada' }}
             </div>
             <div class="detail-info">
-                <strong>Local:</strong> {{ obj.local_encontrado|default:'Não informado' }}
+                <strong>Local:</strong> {{ objeto.local_encontrado|default:'Não informado' }}
             </div>
             <div class="detail-info">
-                <strong>Data encontrado:</strong> {{ obj.data_encontrado }}
+                <strong>Data encontrado:</strong> {{ objeto.data_encontrado }}
             </div>
             <div class="detail-info">
-                <strong>Registrado em:</strong> {{ obj.data_registro|date:"d/m/Y H:i" }}
+                <strong>Registrado em:</strong> {{ objeto.data_registro|date:"d/m/Y H:i" }}
             </div>
             <div class="detail-info">
-                <strong>Encontrado por:</strong> {{ obj.usuario.get_full_name|default:obj.usuario.username }}
+                <strong>Encontrado por:</strong> {{ objeto.usuario.get_full_name|default:objeto.usuario.username }}
             </div>
         </div>
 
         <div class="detail-description">
             <h2>Descrição</h2>
-            <p>{{ obj.descricao|linebreaksbr }}</p>
+            <p>{{ objeto.descricao|linebreaksbr }}</p>
         </div>
     </div>
 
     <div class="detail-actions">
         {% if user.is_authenticated %}
-            {% if obj.status == 'disponivel' and obj.usuario != user and not ja_solicitou %}
-                <a href="{% url 'solicitacao_create' obj.pk %}" class="btn btn-primary">Reivindicar este objeto</a>
+            {% if objeto.status == 'disponivel' and objeto.usuario != user and not ja_solicitou %}
+                <a href="{% url 'solicitacao_create' objeto.pk %}" class="btn btn-primary">Reivindicar este objeto</a>
             {% elif ja_solicitou %}
                 <a href="{% url 'solicitacao_detail' minha_solicitacao.pk %}" class="btn btn-secondary">Ver minha solicitação</a>
             {% endif %}
 
-            {% if obj.usuario == user or tipo == 'admin' %}
-                <a href="{% url 'objeto_encontrado_update' obj.pk %}" class="btn btn-secondary">Editar</a>
-                <a href="{% url 'objeto_encontrado_delete' obj.pk %}" class="btn btn-danger">Excluir</a>
+            {% if objeto.usuario == user or tipo == 'admin' %}
+                <a href="{% url 'objeto_encontrado_update' objeto.pk %}" class="btn btn-secondary">Editar</a>
+                <a href="{% url 'objeto_encontrado_delete' objeto.pk %}" class="btn btn-danger">Excluir</a>
             {% endif %}
         {% else %}
             <a href="{% url 'login' %}" class="btn btn-primary">Faça login para reivindicar</a>
@@ -62,22 +62,22 @@
 </div>
 
 {% if user.is_authenticated %}
-{% if obj.usuario == user or tipo == 'admin' %}
+{% if objeto.usuario == user or tipo == 'admin' %}
 {% if solicitacoes %}
 <section class="dashboard-section">
     <h2>Solicitações de Posse</h2>
     <table class="table">
         <thead><tr><th>Solicitante</th><th>Data</th><th>Status</th><th>Ação</th></tr></thead>
         <tbody>
-            {% for s in solicitacoes %}
+            {% for solicitacao in solicitacoes %}
             <tr>
-                <td>{{ s.solicitante.get_full_name|default:s.solicitante.username }}</td>
-                <td>{{ s.data_solicitacao|date:"d/m/Y" }}</td>
-                <td><span class="{{ s.status|status_class }}">{{ s.get_status_display }}</span></td>
+                <td>{{ solicitacao.solicitante.get_full_name|default:solicitacao.solicitante.username }}</td>
+                <td>{{ solicitacao.data_solicitacao|date:"d/m/Y" }}</td>
+                <td><span class="{{ solicitacao.status|classe_status }}">{{ solicitacao.get_status_display }}</span></td>
                 <td>
-                    <a href="{% url 'solicitacao_detail' s.pk %}" class="btn btn-small btn-secondary">Ver</a>
-                    {% if tipo == 'admin' and s.status == 'pendente' %}
-                    <a href="{% url 'solicitacao_validar' s.pk %}" class="btn btn-small btn-primary">Validar</a>
+                    <a href="{% url 'solicitacao_detail' solicitacao.pk %}" class="btn btn-small btn-secondary">Ver</a>
+                    {% if tipo == 'admin' and solicitacao.status == 'pendente' %}
+                    <a href="{% url 'solicitacao_validar' solicitacao.pk %}" class="btn btn-small btn-primary">Validar</a>
                     {% endif %}
                 </td>
             </tr>
@@ -94,16 +94,16 @@
     <h2>Registros de Perda Relacionados</h2>
     <p>Objetos perdidos na mesma categoria que podem corresponder a este achado. Abra o registro para ver os dados de contato e combinar a devolução.</p>
     <div class="cards-grid">
-        {% for item in correspondencias %}
+        {% for correspondencia in correspondencias %}
         <div class="card card-match">
             <div class="card-header">
-                <span class="badge badge-categoria">{{ item.categoria }}</span>
+                <span class="badge badge-categoria">{{ correspondencia.categoria }}</span>
             </div>
-            <h3><a href="{% url 'objeto_perdido_detail' item.pk %}">{{ item.titulo }}</a></h3>
-            <p class="card-desc">{{ item.descricao|truncatewords:15 }}</p>
+            <h3><a href="{% url 'objeto_perdido_detail' correspondencia.pk %}">{{ correspondencia.titulo }}</a></h3>
+            <p class="card-desc">{{ correspondencia.descricao|truncatewords:15 }}</p>
             <p class="card-meta">
-                {{ item.local_perdido|default:'?' }} &middot; {{ item.data_perda }}
-                &middot; Por: {{ item.usuario.get_full_name|default:item.usuario.username }}
+                {{ correspondencia.local_perdido|default:'?' }} &middot; {{ correspondencia.data_perda }}
+                &middot; Por: {{ correspondencia.usuario.get_full_name|default:correspondencia.usuario.username }}
             </p>
         </div>
         {% endfor %}

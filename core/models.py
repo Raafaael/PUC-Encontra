@@ -38,20 +38,20 @@ class Perfil(models.Model):
         return f'{self.user.get_full_name() or self.user.username} ({self.get_tipo_display()})'
 
     @property
-    def is_admin(self):
+    def eh_admin(self):
         return self.tipo == 'admin'
 
     @property
-    def is_funcionario(self):
+    def eh_funcionario(self):
         return False
 
     @property
-    def is_usuario(self):
+    def eh_usuario(self):
         return self.tipo == 'usuario'
 
     @property
-    def is_aluno(self):
-        return self.is_usuario
+    def eh_aluno(self):
+        return self.eh_usuario
 
 
 class CodigoVerificacao(models.Model):

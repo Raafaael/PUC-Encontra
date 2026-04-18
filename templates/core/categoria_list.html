@@ -12,15 +12,15 @@
 <table class="table">
     <thead><tr><th>Nome</th><th>Descrição</th><th>Perdidos</th><th>Encontrados</th><th>Ações</th></tr></thead>
     <tbody>
-        {% for cat in categorias %}
+        {% for categoria in categorias %}
         <tr>
-            <td><strong>{{ cat.nome }}</strong></td>
-            <td>{{ cat.descricao|truncatewords:10|default:'-' }}</td>
-            <td>{{ cat.num_perdidos }}</td>
-            <td>{{ cat.num_encontrados }}</td>
+            <td><strong>{{ categoria.nome }}</strong></td>
+            <td>{{ categoria.descricao|truncatewords:10|default:'-' }}</td>
+            <td>{{ categoria.num_perdidos }}</td>
+            <td>{{ categoria.num_encontrados }}</td>
             <td>
-                <a href="{% url 'categoria_update' cat.pk %}" class="btn btn-small btn-secondary">Editar</a>
-                <a href="{% url 'categoria_delete' cat.pk %}" class="btn btn-small btn-danger">Excluir</a>
+                <a href="{% url 'categoria_update' categoria.pk %}" class="btn btn-small btn-secondary">Editar</a>
+                <a href="{% url 'categoria_delete' categoria.pk %}" class="btn btn-small btn-danger">Excluir</a>
             </td>
         </tr>
         {% endfor %}

@@ -18,7 +18,7 @@
 <form method="post" class="form-card">
     {% csrf_token %}
 
-    {% if form.errors %}
+    {% if formulario.errors %}
     <div class="alert alert-error">Por favor, corrija os erros abaixo.</div>
     {% endif %}
 
@@ -26,36 +26,36 @@
         <div class="form-group">
             <label for="id_first_name">Nome</label>
             <input type="text" name="first_name" id="id_first_name"
-                   value="{{ form.first_name.value|default:'' }}" required>
-            {% if form.first_name.errors %}<span class="form-error">{{ form.first_name.errors.0 }}</span>{% endif %}
+                   value="{{ formulario.first_name.value|default:'' }}" required>
+            {% if formulario.first_name.errors %}<span class="form-error">{{ formulario.first_name.errors.0 }}</span>{% endif %}
         </div>
         <div class="form-group">
             <label for="id_last_name">Sobrenome</label>
             <input type="text" name="last_name" id="id_last_name"
-                   value="{{ form.last_name.value|default:'' }}" required>
-            {% if form.last_name.errors %}<span class="form-error">{{ form.last_name.errors.0 }}</span>{% endif %}
+                   value="{{ formulario.last_name.value|default:'' }}" required>
+            {% if formulario.last_name.errors %}<span class="form-error">{{ formulario.last_name.errors.0 }}</span>{% endif %}
         </div>
     </div>
 
     <div class="form-group">
         <label for="id_email">E-mail</label>
         <input type="email" name="email" id="id_email"
-               value="{{ form.email.value|default:'' }}" required>
-        {% if form.email.errors %}<span class="form-error">{{ form.email.errors.0 }}</span>{% endif %}
+               value="{{ formulario.email.value|default:'' }}" required>
+        {% if formulario.email.errors %}<span class="form-error">{{ formulario.email.errors.0 }}</span>{% endif %}
     </div>
 
     <div class="form-row">
         <div class="form-group">
             <label for="id_matricula">Matrícula</label>
             <input type="text" name="matricula" id="id_matricula"
-                   value="{{ form.matricula.value|default:'' }}">
-            {% if form.matricula.errors %}<span class="form-error">{{ form.matricula.errors.0 }}</span>{% endif %}
+                   value="{{ formulario.matricula.value|default:'' }}">
+            {% if formulario.matricula.errors %}<span class="form-error">{{ formulario.matricula.errors.0 }}</span>{% endif %}
         </div>
         <div class="form-group">
             <label for="id_telefone">Telefone *</label>
             <input type="text" name="telefone" id="id_telefone" required
-                   value="{{ form.telefone.value|default:'' }}">
-            {% if form.telefone.errors %}<span class="form-error">{{ form.telefone.errors.0 }}</span>{% endif %}
+                   value="{{ formulario.telefone.value|default:'' }}">
+            {% if formulario.telefone.errors %}<span class="form-error">{{ formulario.telefone.errors.0 }}</span>{% endif %}
         </div>
     </div>
 

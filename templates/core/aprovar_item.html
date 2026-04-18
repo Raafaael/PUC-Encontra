@@ -10,14 +10,14 @@
 <h1>Avaliar Item</h1>
 
 <div class="info-box">
-    <h3>{{ obj.titulo }}</h3>
+    <h3>{{ objeto.titulo }}</h3>
     <p><strong>Tipo:</strong> {% if tipo == 'perdido' %}Objeto Perdido{% else %}Objeto Encontrado{% endif %}</p>
-    <p><strong>Registrado por:</strong> {{ obj.usuario.get_full_name|default:obj.usuario.username }}</p>
-    <p><strong>Categoria:</strong> {{ obj.categoria|default:'Não informada' }}</p>
+    <p><strong>Registrado por:</strong> {{ objeto.usuario.get_full_name|default:objeto.usuario.username }}</p>
+    <p><strong>Categoria:</strong> {{ objeto.categoria|default:'Não informada' }}</p>
     <p><strong>Descrição:</strong></p>
-    <p>{{ obj.descricao|linebreaksbr }}</p>
-    {% if obj.imagem %}
-    <div class="detail-image" style="margin-top: 12px;"><img src="{{ obj.imagem.url }}" alt="{{ obj.titulo }}"></div>
+    <p>{{ objeto.descricao|linebreaksbr }}</p>
+    {% if objeto.imagem %}
+    <div class="detail-image" style="margin-top: 12px;"><img src="{{ objeto.imagem.url }}" alt="{{ objeto.titulo }}"></div>
     {% endif %}
 </div>
 
@@ -27,7 +27,7 @@
     <div class="form-group">
         <label>Decisão *</label>
         <div class="radio-group">
-            {% for radio in form.acao %}
+            {% for radio in formulario.acao %}
             <label class="radio-label">{{ radio.tag }} {{ radio.choice_label }}</label>
             {% endfor %}
         </div>

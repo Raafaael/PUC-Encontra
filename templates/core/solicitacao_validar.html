@@ -24,7 +24,7 @@
     <div class="form-group">
         <label>Decisão *</label>
         <div class="radio-group">
-            {% for radio in form.status %}
+            {% for radio in formulario.status %}
             <label class="radio-label">{{ radio.tag }} {{ radio.choice_label }}</label>
             {% endfor %}
         </div>
@@ -33,7 +33,7 @@
     <div class="form-group">
         <label for="id_resposta_admin">Justificativa / Resposta</label>
         <textarea name="resposta_admin" id="id_resposta_admin" rows="4"
-                  placeholder="Explique a razão da decisão...">{{ form.resposta_admin.value|default:'' }}</textarea>
+                  placeholder="Explique a razão da decisão...">{{ formulario.resposta_admin.value|default:'' }}</textarea>
     </div>
 
     <div class="form-actions">

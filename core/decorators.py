@@ -3,20 +3,20 @@ from functools import wraps
 from django.contrib import messages
 from django.shortcuts import redirect
 
-from .access import user_has_role
+from .access import usuario_tem_papel
 
 
-def role_required(*roles):
-    def decorator(view_func):
-        @wraps(view_func)
-        def wrapper(request, *args, **kwargs):
-            if not request.user.is_authenticated:
+def papel_obrigatorio(*papeis):
+    def decorador(funcao_view):
+        @wraps(funcao_view)
+        def encapsular(requisicao, *args, **kwargs):
+            if not requisicao.user.is_authenticated:
                 return redirect('login')
-            if user_has_role(request.user, *roles):
-                return view_func(request, *args, **kwargs)
-            messages.error(request, 'Você não tem permissão para acessar esta página.')
+            if usuario_tem_papel(requisicao.user, *papeis):
+                return funcao_view(requisicao, *args, **kwargs)
+            messages.error(requisicao, 'Você não tem permissão para acessar esta página.')
             return redirect('dashboard')
 
-        return wrapper
+        return encapsular
 
-    return decorator
+    return decorador

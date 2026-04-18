@@ -11,7 +11,7 @@
 <div class="detail-card">
     <div class="detail-header">
         <h1>Solicitação #{{ solicitacao.pk }}</h1>
-        <span class="card-status {{ solicitacao.status|status_class }}">{{ solicitacao.get_status_display }}</span>
+        <span class="card-status {{ solicitacao.status|classe_status }}">{{ solicitacao.get_status_display }}</span>
     </div>
 
     <div class="detail-body">

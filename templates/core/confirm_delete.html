@@ -5,17 +5,17 @@
 {% block content %}
 <div class="confirm-delete">
     <h1>Confirmar Exclusão</h1>
-    <p>Tem certeza que deseja excluir {{ tipo_nome }} <strong>"{{ obj }}"</strong>?</p>
+    <p>Tem certeza que deseja excluir {{ tipo_nome }} <strong>"{{ objeto }}"</strong>?</p>
     <p class="warning-text">Esta ação não pode ser desfeita.</p>
 
     <form method="post">
         {% csrf_token %}
         <div class="form-actions">
             <button type="submit" class="btn btn-danger">Sim, excluir</button>
-            {% if cancel_url %}
-            <a href="{% url cancel_url obj.pk %}" class="btn btn-secondary">Cancelar</a>
-            {% elif cancel_url_list %}
-            <a href="{% url cancel_url_list %}" class="btn btn-secondary">Cancelar</a>
+            {% if rota_cancelar %}
+            <a href="{% url rota_cancelar objeto.pk %}" class="btn btn-secondary">Cancelar</a>
+            {% elif rota_cancelar_lista %}
+            <a href="{% url rota_cancelar_lista %}" class="btn btn-secondary">Cancelar</a>
             {% else %}
             <a href="{% url 'meus_registros' %}" class="btn btn-secondary">Cancelar</a>
             {% endif %}

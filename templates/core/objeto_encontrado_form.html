@@ -8,44 +8,44 @@
 <form method="post" enctype="multipart/form-data" class="form-card">
     {% csrf_token %}
 
-    {% if form.errors %}
+    {% if formulario.errors %}
     <div class="alert alert-error">Por favor, corrija os erros abaixo.</div>
     {% endif %}
 
     <div class="form-group">
         <label for="id_titulo">Título *</label>
         <input type="text" name="titulo" id="id_titulo" required
-               value="{{ form.titulo.value|default:'' }}" placeholder="Ex: Celular Samsung encontrado">
-        {% if form.titulo.errors %}<span class="form-error">{{ form.titulo.errors.0 }}</span>{% endif %}
+               value="{{ formulario.titulo.value|default:'' }}" placeholder="Ex: Celular Samsung encontrado">
+        {% if formulario.titulo.errors %}<span class="form-error">{{ formulario.titulo.errors.0 }}</span>{% endif %}
     </div>
 
     <div class="form-group">
         <label for="id_descricao">Descrição detalhada *</label>
         <textarea name="descricao" id="id_descricao" rows="4" required
-                  placeholder="Descreva o objeto encontrado com detalhes...">{{ form.descricao.value|default:'' }}</textarea>
-        {% if form.descricao.errors %}<span class="form-error">{{ form.descricao.errors.0 }}</span>{% endif %}
+                  placeholder="Descreva o objeto encontrado com detalhes...">{{ formulario.descricao.value|default:'' }}</textarea>
+        {% if formulario.descricao.errors %}<span class="form-error">{{ formulario.descricao.errors.0 }}</span>{% endif %}
     </div>
 
     <div class="form-row">
         <div class="form-group">
             <label for="id_categoria">Categoria</label>
-            {{ form.categoria }}
+            {{ formulario.categoria }}
         </div>
         <div class="form-group">
             <label for="id_local_encontrado">Local onde encontrou</label>
-            {{ form.local_encontrado }}
+            {{ formulario.local_encontrado }}
         </div>
     </div>
 
     <div class="form-row">
         <div class="form-group">
             <label for="id_data_encontrado">Data que encontrou *</label>
-            {{ form.data_encontrado }}
+            {{ formulario.data_encontrado }}
         </div>
         <div class="form-group">
             <label for="id_imagem">Imagem (opcional)</label>
-            {% if obj and obj.imagem %}
-            <p class="current-file">Imagem atual: {{ obj.imagem.name }}</p>
+            {% if objeto and objeto.imagem %}
+            <p class="current-file">Imagem atual: {{ objeto.imagem.name }}</p>
             {% endif %}
             <input type="file" name="imagem" id="id_imagem" accept="image/*">
         </div>

@@ -8,7 +8,7 @@
   </p>
 
   <form method="post" class="form-card">
-    {% csrf_token %} {% if form.errors %}
+    {% csrf_token %} {% if formulario.errors %}
     <div class="alert alert-error">Por favor, corrija os erros abaixo.</div>
     {% endif %}
 
@@ -20,10 +20,10 @@
           name="first_name"
           id="id_first_name"
           required
-          value="{{ form.first_name.value|default:'' }}"
+          value="{{ formulario.first_name.value|default:'' }}"
         />
-        {% if form.first_name.errors %}<span class="form-error"
-          >{{ form.first_name.errors.0 }}</span
+        {% if formulario.first_name.errors %}<span class="form-error"
+          >{{ formulario.first_name.errors.0 }}</span
         >{% endif %}
       </div>
       <div class="form-group">
@@ -33,10 +33,10 @@
           name="last_name"
           id="id_last_name"
           required
-          value="{{ form.last_name.value|default:'' }}"
+          value="{{ formulario.last_name.value|default:'' }}"
         />
-        {% if form.last_name.errors %}<span class="form-error"
-          >{{ form.last_name.errors.0 }}</span
+        {% if formulario.last_name.errors %}<span class="form-error"
+          >{{ formulario.last_name.errors.0 }}</span
         >{% endif %}
       </div>
     </div>
@@ -48,11 +48,11 @@
         name="username"
         id="id_username"
         required
-        value="{{ form.username.value|default:'' }}"
+        value="{{ formulario.username.value|default:'' }}"
         placeholder="Escolha um nome de usuário"
       />
-      {% if form.username.errors %}<span class="form-error"
-        >{{ form.username.errors.0 }}</span
+      {% if formulario.username.errors %}<span class="form-error"
+        >{{ formulario.username.errors.0 }}</span
       >{% endif %}
     </div>
 
@@ -63,10 +63,10 @@
         name="email"
         id="id_email"
         required
-        value="{{ form.email.value|default:'' }}"
+        value="{{ formulario.email.value|default:'' }}"
       />
-      {% if form.email.errors %}<span class="form-error"
-        >{{ form.email.errors.0 }}</span
+      {% if formulario.email.errors %}<span class="form-error"
+        >{{ formulario.email.errors.0 }}</span
       >{% endif %}
     </div>
 
@@ -77,15 +77,15 @@
         <span class="form-help"
           >Mínimo 8 caracteres. Não pode ser só números.</span
         >
-        {% if form.password1.errors %}<span class="form-error"
-          >{{ form.password1.errors.0 }}</span
+        {% if formulario.password1.errors %}<span class="form-error"
+          >{{ formulario.password1.errors.0 }}</span
         >{% endif %}
       </div>
       <div class="form-group">
         <label for="id_password2">Confirmar senha *</label>
         <input type="password" name="password2" id="id_password2" required />
-        {% if form.password2.errors %}<span class="form-error"
-          >{{ form.password2.errors.0 }}</span
+        {% if formulario.password2.errors %}<span class="form-error"
+          >{{ formulario.password2.errors.0 }}</span
         >{% endif %}
       </div>
     </div>
@@ -97,10 +97,10 @@
           type="text"
           name="matricula"
           id="id_matricula"
-          value="{{ form.matricula.value|default:'' }}"
+          value="{{ formulario.matricula.value|default:'' }}"
         />
-        {% if form.matricula.errors %}<span class="form-error"
-          >{{ form.matricula.errors.0 }}</span
+        {% if formulario.matricula.errors %}<span class="form-error"
+          >{{ formulario.matricula.errors.0 }}</span
         >{% endif %}
       </div>
       <div class="form-group">
@@ -110,10 +110,10 @@
           name="telefone"
           id="id_telefone"
           required
-          value="{{ form.telefone.value|default:'' }}"
+          value="{{ formulario.telefone.value|default:'' }}"
         />
-        {% if form.telefone.errors %}<span class="form-error"
-          >{{ form.telefone.errors.0 }}</span
+        {% if formulario.telefone.errors %}<span class="form-error"
+          >{{ formulario.telefone.errors.0 }}</span
         >{% endif %}
       </div>
     </div>
