@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Desativar Conta — PUC Encontra{% endblock %}
+
+{% block content %}
+<div class="confirm-delete">
+    <h1>Desativar Conta</h1>
+    <p>Tem certeza que deseja desativar sua conta <strong>{{ user.username }}</strong>?</p>
+    <p class="warning-text">Você perderá o acesso ao sistema. Para reativá-la, entre em contato com o administrador.</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-actions">
+            <button type="submit" class="btn btn-danger">Sim, desativar minha conta</button>
+            <a href="{% url 'perfil' %}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
