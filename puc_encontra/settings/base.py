@@ -1,7 +1,5 @@
 """
-Configurações do projeto PUC Encontra.
-
-Sistema de Achados e Perdidos Inteligente da PUC.
+Configurações base do projeto PUC Encontra.
 """
 
 import os
@@ -9,18 +7,32 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-# Diretório base do projeto
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 load_dotenv(BASE_DIR / ".env")
 
-SECRET_KEY = os.environ.get(
-    "DJANGO_SECRET_KEY", "django-insecure-puc-encontra-dev-key-change-in-production"
+
+def env_bool(name, default=False):
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def env_list(name, default=""):
+    raw_value = os.getenv(name, default)
+    return [item.strip() for item in raw_value.split(",") if item.strip()]
+
+
+SECRET_KEY = os.getenv(
+    "DJANGO_SECRET_KEY",
+    "django-insecure-puc-encontra-dev-key-change-in-production",
 )
 
-DEBUG = os.environ.get("DJANGO_DEBUG", "True").lower() in ("true", "1", "yes")
+DEBUG = env_bool("DJANGO_DEBUG", False)
 
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
+CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -32,7 +44,6 @@ INSTALLED_APPS = [
     "core.apps.CoreConfig",
 ]
 
-# Middlewares
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -45,7 +56,6 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "puc_encontra.urls"
 
-# Configuração dos templates
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -64,7 +74,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "puc_encontra.wsgi.application"
 
-# Banco de dados: SQLite para desenvolvimento
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
@@ -72,7 +81,6 @@ DATABASES = {
     }
 }
 
-# Validação de senhas
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
@@ -82,7 +90,6 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-# Internacionalização
 LANGUAGE_CODE = "pt-br"
 TIME_ZONE = "America/Sao_Paulo"
 USE_I18N = True
@@ -90,15 +97,22 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
-STATIC_ROOT = BASE_DIR / "staticfiles"
+STATIC_ROOT = Path(os.getenv("DJANGO_STATIC_ROOT", str(BASE_DIR / "staticfiles")))
 
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_URL = os.getenv("DJANGO_MEDIA_URL", "/media/")
+MEDIA_ROOT = Path(os.getenv("DJANGO_MEDIA_ROOT", str(BASE_DIR / "media")))
 
-# Tipo de campo de chave primária padrão
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+    },
+}
+
+SERVE_MEDIA_FILES = env_bool("DJANGO_SERVE_MEDIA_FILES", DEBUG)
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Configurações de autenticação
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/dashboard/"
 LOGOUT_REDIRECT_URL = "/"
@@ -107,9 +121,9 @@ AUTHENTICATION_BACKENDS = [
     "core.backends.EmailOuUsernameBackend",
 ]
 
-EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
-EMAIL_BACKEND = os.environ.get(
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+EMAIL_BACKEND = os.getenv(
     "EMAIL_BACKEND",
     (
         "django.core.mail.backends.smtp.EmailBackend"
@@ -117,7 +131,10 @@ EMAIL_BACKEND = os.environ.get(
         else "django.core.mail.backends.console.EmailBackend"
     ),
 )
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-DEFAULT_FROM_EMAIL = os.environ.get("EMAIL_HOST_USER", "noreply@pucencontra.com")
+EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
+EMAIL_USE_TLS = env_bool("EMAIL_USE_TLS", True)
+EMAIL_USE_SSL = env_bool("EMAIL_USE_SSL", False)
+DEFAULT_FROM_EMAIL = os.getenv(
+    "DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "noreply@pucencontra.com"
+)

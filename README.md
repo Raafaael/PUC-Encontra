@@ -26,7 +26,7 @@ O **PUC Encontra** é um sistema web de achados e perdidos desenvolvido para a P
 
 - **Backend:** Python 3.12 + Django 4.2
 - **Frontend:** HTML5 + CSS3
-- **Banco de dados:** SQLite
+- **Banco de dados:** SQLite no desenvolvimento e PostgreSQL no Railway
 - **Imagens:** Pillow
 
 ---
@@ -57,13 +57,16 @@ source venv/bin/activate
 # 3. Instale as dependências
 pip install -r requirements.txt
 
-# 4. Execute as migrações
+# 4. Crie o arquivo de ambiente
+cp .env.example .env
+
+# 5. Execute as migrações
 python manage.py migrate
 
-# 5. Popule o banco com dados iniciais
+# 6. Popule o banco com dados iniciais
 python manage.py seed
 
-# 6. Inicie o servidor
+# 7. Inicie o servidor
 python manage.py runserver
 ```
 
@@ -82,6 +85,35 @@ EMAIL_HOST_PASSWORD=sua-senha-ou-app-password
 ```
 
 Também é possível sobrescrever o backend manualmente com `EMAIL_BACKEND`.
+
+### Ambientes de settings
+
+- Desenvolvimento local: `puc_encontra.settings.development`
+- Produção no Railway: `puc_encontra.settings.production`
+
+O `manage.py` usa desenvolvimento por padrão. Em produção, configure `DJANGO_SETTINGS_MODULE=puc_encontra.settings.production`.
+
+### Deploy no Railway
+
+Variáveis mínimas recomendadas:
+
+```env
+DJANGO_SETTINGS_MODULE=puc_encontra.settings.production
+DJANGO_SECRET_KEY=gere-uma-chave-segura
+DATABASE_URL=postgresql://usuario:senha@host:porta/banco
+DJANGO_ALLOWED_HOSTS=seu-app.up.railway.app,seu-dominio.com
+DJANGO_CSRF_TRUSTED_ORIGINS=https://seu-app.up.railway.app,https://seu-dominio.com
+```
+
+Comandos de deploy:
+
+```bash
+python manage.py migrate
+python manage.py collectstatic --noinput
+gunicorn puc_encontra.wsgi --bind 0.0.0.0:$PORT
+```
+
+Se quiser manter upload de imagens em disco no Railway, monte um volume e aponte `DJANGO_MEDIA_ROOT` para esse caminho. Sem volume, os arquivos enviados pelos usuários são efêmeros.
 
 ---
 
@@ -162,7 +194,11 @@ PUC-Encontra/
 |-- manage.py
 |-- requirements.txt
 |-- puc_encontra/
-|   |-- settings.py
+|   |-- settings/
+|   |   |-- __init__.py
+|   |   |-- base.py
+|   |   |-- development.py
+|   |   `-- production.py
 |   |-- urls.py
 |   `-- wsgi.py
 |-- core/
