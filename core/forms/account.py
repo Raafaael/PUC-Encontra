@@ -54,15 +54,18 @@ class RegistroForm(UserCreationForm):
         user.last_name = self.cleaned_data['last_name']
         if commit:
             user.save()
-            Perfil.objects.update_or_create(
-                user=user,
-                defaults={
-                    'tipo': 'usuario',
-                    'matricula': self.cleaned_data.get('matricula', ''),
-                    'telefone': self.cleaned_data['telefone'],
-                },
-            )
+            self.save_perfil(user)
         return user
+
+    def save_perfil(self, user):
+        Perfil.objects.update_or_create(
+            user=user,
+            defaults={
+                'tipo': 'usuario',
+                'matricula': self.cleaned_data.get('matricula', ''),
+                'telefone': self.cleaned_data['telefone'],
+            },
+        )
 
 
 class PerfilForm(BasePerfilForm):
