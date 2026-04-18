@@ -2,6 +2,8 @@
 
 Projeto da G1 da disciplina de Programação para Web de 2026.1.
 
+LINK: https://puc-encontra.up.railway.app/
+
 ## Integrantes
 
 - `Dante Honorato Navaza` - Matricula: `2321406`

@@ -51,7 +51,7 @@ STORAGES = {
     },
 }
 
-STATIC_ROOT = Path("/data/staticfiles")
+STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_ROOT = Path("/data/media")
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = True
