@@ -21,14 +21,22 @@ if not url_banco_dados:
         "Defina DATABASE_URL para conectar o banco de dados em produção."
     )
 
-dominio_publico_vercel = os.getenv("HOST_PUBLIC_DOMAIN")
-if not dominio_publico_vercel:
-    raise ImproperlyConfigured(
-        "Defina HOST_PUBLIC_DOMAIN com o domínio público da aplicação."
-    )
+dominios_publicos = [
+    dominio
+    for dominio in [
+        os.getenv("HOST_PUBLIC_DOMAIN"),
+        os.getenv("VERCEL_PROJECT_PRODUCTION_URL"),
+        os.getenv("VERCEL_URL"),
+    ]
+    if dominio
+]
 
-ALLOWED_HOSTS = [dominio_publico_vercel]
-CSRF_TRUSTED_ORIGINS = [f"https://{dominio_publico_vercel}"]
+if dominios_publicos:
+    ALLOWED_HOSTS = list(dict.fromkeys(dominios_publicos + [".vercel.app"]))
+    CSRF_TRUSTED_ORIGINS = [f"https://{dominio}" for dominio in dominios_publicos]
+else:
+    ALLOWED_HOSTS = [".vercel.app", "localhost", "127.0.0.1"]
+    CSRF_TRUSTED_ORIGINS = ["https://*.vercel.app"]
 
 DATABASES = {
     "default": dj_database_url.parse(
@@ -40,13 +48,15 @@ DATABASES = {
 
 INSTALLED_APPS += ["cloudinary_storage", "cloudinary"]
 
-cloudinary_cloud_name = os.getenv("CLOUD_NAME")
-cloudinary_api_key = os.getenv("CLOUD_API_KEY")
-cloudinary_api_secret = os.getenv("CLOUD_API_SECRET")
+cloudinary_cloud_name = os.getenv("CLOUD_NAME") or os.getenv("CLOUDINARY_CLOUD_NAME")
+cloudinary_api_key = os.getenv("CLOUD_API_KEY") or os.getenv("CLOUDINARY_API_KEY")
+cloudinary_api_secret = os.getenv("CLOUD_API_SECRET") or os.getenv(
+    "CLOUDINARY_API_SECRET"
+)
 
-if not cloudinary_api_key or not cloudinary_api_secret:
+if not cloudinary_cloud_name or not cloudinary_api_key or not cloudinary_api_secret:
     raise ImproperlyConfigured(
-        "Defina CLOUD_API_KEY/CLOUD_API_SECRET ou CLOUDINARY_API_KEY/CLOUDINARY_API_SECRET para o Cloudinary."
+        "Defina CLOUD_NAME/CLOUD_API_KEY/CLOUD_API_SECRET ou CLOUDINARY_CLOUD_NAME/CLOUDINARY_API_KEY/CLOUDINARY_API_SECRET para o Cloudinary."
     )
 
 CLOUDINARY_STORAGE = {
