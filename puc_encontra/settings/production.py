@@ -21,14 +21,30 @@ if not url_banco_dados:
         "Defina DATABASE_URL para conectar o banco de dados em produção."
     )
 
-dominio_publico_vercel = os.getenv("HOST_PUBLIC_DOMAIN")
-if not dominio_publico_vercel:
+hosts_permitidos_brutos = os.getenv("DJANGO_ALLOWED_HOSTS")
+if not hosts_permitidos_brutos:
     raise ImproperlyConfigured(
-        "Defina HOST_PUBLIC_DOMAIN com o domínio público da aplicação."
+        "Defina DJANGO_ALLOWED_HOSTS com os hosts permitidos em produção."
     )
+hosts_permitidos = [
+    item.strip()
+    for item in hosts_permitidos_brutos.split(",")
+    if item.strip()
+]
 
-ALLOWED_HOSTS = [dominio_publico_vercel]
-CSRF_TRUSTED_ORIGINS = [f"https://{dominio_publico_vercel}"]
+origens_confiaveis_csrf_brutas = os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS")
+if not origens_confiaveis_csrf_brutas:
+    raise ImproperlyConfigured(
+        "Defina DJANGO_CSRF_TRUSTED_ORIGINS com as origens confiáveis em produção."
+    )
+origens_confiaveis_csrf = [
+    item.strip()
+    for item in origens_confiaveis_csrf_brutas.split(",")
+    if item.strip()
+]
+
+ALLOWED_HOSTS = hosts_permitidos
+CSRF_TRUSTED_ORIGINS = origens_confiaveis_csrf
 
 DATABASES = {
     "default": dj_database_url.parse(
