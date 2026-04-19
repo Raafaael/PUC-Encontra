@@ -95,7 +95,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/dashboard/"
 LOGOUT_REDIRECT_URL = "/"
-REGISTRO_EXIGE_VERIFICACAO_EMAIL = True
 
 AUTHENTICATION_BACKENDS = [
     "core.backends.EmailOuUsernameBackend",
