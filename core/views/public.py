@@ -43,7 +43,7 @@ def perdidos_publico(requisicao):
 
 
 def encontrados_publico(requisicao):
-    consulta = ObjetoEncontrado.objects.filter(status__in=['disponivel', 'reivindicado'])
+    consulta = ObjetoEncontrado.objects.filter(status='disponivel')
 
     categoria_id = requisicao.GET.get('categoria')
     local_id = requisicao.GET.get('local')

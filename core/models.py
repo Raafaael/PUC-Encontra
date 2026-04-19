@@ -106,7 +106,9 @@ class Local(models.Model):
         unique_together = ['nome', 'predio']
 
     def __str__(self):
-        partes = [self.nome, f'- {self.predio}']
+        partes = [self.nome]
+        if self.predio:
+            partes.append(f'- {self.predio}')
         if self.andar:
             partes.append(f'({self.andar})')
         return ' '.join(partes)

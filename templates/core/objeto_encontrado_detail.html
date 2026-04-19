@@ -11,7 +11,7 @@
 <div class="detail-card">
     <div class="detail-header">
         <h1>{{ objeto.titulo }}</h1>
-        <span class="card-status {{ objeto.status|classe_status }}">{{ objeto.get_status_display }}</span>
+        {% if objeto.status != 'disponivel' %}<span class="card-status {{ objeto.status|classe_status }}">{{ objeto.get_status_display }}</span>{% endif %}
     </div>
 
     {% if objeto.imagem %}

@@ -37,7 +37,7 @@
         {% endif %}
         <div class="card-header">
             <span class="badge badge-categoria">{{ objeto.categoria|default:'Sem categoria' }}</span>
-            <span class="card-status {{ objeto.status|classe_status }}">{{ objeto.get_status_display }}</span>
+            {% if objeto.status != 'disponivel' %}<span class="card-status {{ objeto.status|classe_status }}">{{ objeto.get_status_display }}</span>{% endif %}
         </div>
         <h3><a href="{% url 'objeto_encontrado_detail' objeto.pk %}">{{ objeto.titulo }}</a></h3>
         <p class="card-desc">{{ objeto.descricao|truncatewords:20 }}</p>
