@@ -72,12 +72,6 @@ CLOUDINARY_STORAGE = {
     "PREFIX": "puc_encontra",
 }
 
-MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
-    *MIDDLEWARE[1:],
-]
-
 STORAGES = {
     **STORAGES,
     "default": {
