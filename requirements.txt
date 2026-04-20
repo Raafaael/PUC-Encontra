@@ -7,3 +7,4 @@ psycopg[binary]>=3.2
 whitenoise>=6.8
 cloudinary>=1.41
 django-cloudinary-storage>=0.3
+certifi>=2024.0
