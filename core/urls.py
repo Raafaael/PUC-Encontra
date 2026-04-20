@@ -4,8 +4,7 @@ from . import views
 
 urlpatterns = [
     path("", views.home, name="home"),
-    path("perdidos/", views.perdidos_publico, name="perdidos_publico"),
-    path("encontrados/", views.encontrados_publico, name="encontrados_publico"),
+    path("itens/", views.itens_publico, name="itens_publico"),
     path("registro/", views.registro, name="registro"),
     path("registro/verificar/", views.verificar_email, name="verificar_email"),
     path(
@@ -55,50 +54,16 @@ urlpatterns = [
     # Dashboard e Meus Registros
     path("dashboard/", views.dashboard, name="dashboard"),
     path("meus-registros/", views.meus_registros, name="meus_registros"),
-    # Objetos Perdidos (CRUD)
-    path("perdidos/novo/", views.objeto_perdido_criar, name="objeto_perdido_create"),
-    path(
-        "perdidos/<int:pk>/", views.objeto_perdido_detalhe, name="objeto_perdido_detail"
-    ),
-    path(
-        "perdidos/<int:pk>/marcar-encontrado/",
-        views.objeto_perdido_marcar_encontrado,
-        name="objeto_perdido_mark_found",
-    ),
-    path(
-        "perdidos/<int:pk>/editar/",
-        views.objeto_perdido_editar,
-        name="objeto_perdido_update",
-    ),
-    path(
-        "perdidos/<int:pk>/excluir/",
-        views.objeto_perdido_excluir,
-        name="objeto_perdido_delete",
-    ),
-    # Objetos Encontrados (CRUD)
-    path(
-        "encontrados/novo/",
-        views.objeto_encontrado_criar,
-        name="objeto_encontrado_create",
-    ),
-    path(
-        "encontrados/<int:pk>/",
-        views.objeto_encontrado_detalhe,
-        name="objeto_encontrado_detail",
-    ),
-    path(
-        "encontrados/<int:pk>/editar/",
-        views.objeto_encontrado_editar,
-        name="objeto_encontrado_update",
-    ),
-    path(
-        "encontrados/<int:pk>/excluir/",
-        views.objeto_encontrado_excluir,
-        name="objeto_encontrado_delete",
-    ),
+    # Objetos (CRUD unificado)
+    path("itens/novo/", views.objeto_criar, name="objeto_create"),
+    path("itens/<int:pk>/", views.objeto_detalhe, name="objeto_detail"),
+    path("itens/<int:pk>/editar/", views.objeto_editar, name="objeto_update"),
+    path("itens/<int:pk>/excluir/", views.objeto_excluir, name="objeto_delete"),
+    path("itens/<int:pk>/resolver/", views.objeto_resolver, name="objeto_resolver"),
+    path("itens/<int:pk>/devolver/", views.objeto_marcar_devolvido, name="objeto_devolver"),
     # Solicitações de Posse
     path(
-        "solicitacoes/nova/<int:encontrado_id>/",
+        "solicitacoes/nova/<int:objeto_id>/",
         views.solicitacao_criar,
         name="solicitacao_create",
     ),
@@ -110,7 +75,7 @@ urlpatterns = [
     ),
     # Aprovações (Admin)
     path("aprovacoes/", views.aprovacoes, name="aprovacoes"),
-    path("aprovacoes/<str:tipo>/<int:pk>/", views.aprovar_item, name="aprovar_item"),
+    path("aprovacoes/<int:pk>/", views.aprovar_item, name="aprovar_item"),
     # Categorias (Admin)
     path("categorias/", views.categoria_listar, name="categoria_list"),
     path("categorias/nova/", views.categoria_criar, name="categoria_create"),
