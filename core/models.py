@@ -149,7 +149,6 @@ class Objeto(models.Model):
         Local,
         on_delete=models.SET_NULL,
         null=True,
-        blank=True,
         related_name='objetos',
         verbose_name='Local',
     )

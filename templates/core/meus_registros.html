@@ -29,16 +29,22 @@
 <section class="dashboard-section">
     <table class="table">
         <thead>
-            <tr><th>Título</th><th>Tipo</th><th>Categoria</th><th>Data</th><th>Status</th><th>Ações</th></tr>
+            <tr><th>Título</th><th>Tipo</th><th>Categoria</th><th>Data</th><th>Ações</th></tr>
         </thead>
         <tbody>
             {% for objeto in objetos %}
             <tr>
                 <td><a href="{% url 'objeto_detail' objeto.pk %}">{{ objeto.titulo }}</a></td>
-                <td><span class="badge {{ objeto.tipo|classe_tipo }}">{{ objeto.get_tipo_display }}</span></td>
+                <td>
+                    {% if objeto.status == 'devolvido' %}
+                    <span class="badge status-devolvido">Devolvido</span>
+                    {% else %}
+                    <span class="badge {{ objeto.tipo|classe_tipo }}">{{ objeto.get_tipo_display }}</span>
+                    {% if objeto.status != 'ativo' %}<span class="{{ objeto.status|classe_status }}">{{ objeto.get_status_display }}</span>{% endif %}
+                    {% endif %}
+                </td>
                 <td>{{ objeto.categoria|default:'-' }}</td>
                 <td>{{ objeto.data_ocorrencia }}</td>
-                <td><span class="{{ objeto.status|classe_status }}">{{ objeto.get_status_display }}</span></td>
                 <td>
                     {% if objeto.status not in 'devolvido,encerrado' %}
                     <a href="{% url 'objeto_update' objeto.pk %}" class="btn btn-small btn-secondary">Editar</a>

@@ -49,8 +49,11 @@
         {% endif %}
         <div class="card-header">
             <span class="badge badge-categoria">{{ objeto.categoria|default:'Sem categoria' }}</span>
+            {% if objeto.status == 'devolvido' %}
+            <span class="badge status-devolvido">Devolvido</span>
+            {% else %}
             <span class="badge {{ objeto.tipo|classe_tipo }}">{{ objeto.get_tipo_display }}</span>
-            {% if objeto.status == 'devolvido' %}<span class="card-status status-devolvido">Devolvido</span>{% endif %}
+            {% endif %}
         </div>
         <h3><a href="{% url 'objeto_detail' objeto.pk %}">{{ objeto.titulo }}</a></h3>
         <p class="card-desc">{{ objeto.descricao|truncatewords:20 }}</p>

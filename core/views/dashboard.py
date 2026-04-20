@@ -28,8 +28,8 @@ def dashboard(requisicao):
             status='ativo',
         ).exclude(usuario=usuario)[:5]
     else:
-        contexto['total_perdidos'] = Objeto.objects.filter(tipo='perdido').count()
-        contexto['total_encontrados'] = Objeto.objects.filter(tipo='encontrado').count()
+        contexto['total_perdidos'] = Objeto.objects.filter(tipo='perdido').exclude(status='devolvido').count()
+        contexto['total_encontrados'] = Objeto.objects.filter(tipo='encontrado').exclude(status='devolvido').count()
         contexto['total_devolvidos'] = Objeto.objects.filter(status='devolvido').count()
         contexto['total_usuarios'] = User.objects.count()
         contexto['pendentes_aprovacao'] = Objeto.objects.filter(status='pendente').count()

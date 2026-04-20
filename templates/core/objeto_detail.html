@@ -12,9 +12,13 @@
     <div class="detail-header">
         <h1>{{ objeto.titulo }}</h1>
         <div>
+            {% if objeto.status == 'devolvido' %}
+            <span class="badge status-devolvido">Devolvido</span>
+            {% else %}
             <span class="badge {{ objeto.tipo|classe_tipo }}">{{ objeto.get_tipo_display }}</span>
             {% if objeto.status != 'ativo' %}
             <span class="card-status {{ objeto.status|classe_status }}">{{ objeto.get_status_display }}</span>
+            {% endif %}
             {% endif %}
         </div>
     </div>

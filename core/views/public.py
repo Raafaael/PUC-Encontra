@@ -27,7 +27,7 @@ def itens_publico(requisicao):
     elif filtro_tipo in ('perdido', 'encontrado'):
         consulta = Objeto.objects.filter(tipo=filtro_tipo, status='ativo')
     else:
-        consulta = Objeto.objects.filter(status='ativo')
+        consulta = Objeto.objects.filter(status__in=('ativo', 'devolvido'))
 
     if categoria_id:
         consulta = consulta.filter(categoria_id=categoria_id)
