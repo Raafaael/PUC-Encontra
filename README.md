@@ -2,7 +2,7 @@
 
 Projeto da G1 da disciplina de Programação para Web de 2026.1.
 
-LINK: https://puc-encontra.up.vercel.app/
+LINK: https://puc-encontra.vercel.app/
 
 ## Integrantes
 
@@ -28,8 +28,8 @@ O **PUC Encontra** é um sistema web de achados e perdidos desenvolvido para a P
 
 - **Backend:** Python 3.12 + Django 4.2
 - **Frontend:** HTML5 + CSS3
-- **Banco de dados:** SQLite no desenvolvimento e PostgreSQL no vercel
-- **Imagens:** Pillow
+- **Banco de dados:** SQLite no desenvolvimento e PostgreSQL na produção
+- **Imagens:** Pillow no desenvolvimento e Cloudinary na produção
 
 ---
 
@@ -59,34 +59,35 @@ source venv/bin/activate
 # 3. Instale as dependências
 pip install -r requirements.txt
 
-# 4. Crie o arquivo de ambiente
-cp .env.example .env
-
-# 5. Execute as migrações
+# 4. Execute as migrações
 python manage.py migrate
 
-# 6. Popule o banco com dados iniciais
+# 5. Popule o banco com dados iniciais
 python manage.py seed
 
-# 7. Inicie o servidor
+# 6. Inicie o servidor
 python manage.py runserver
 ```
 
 O site ficará disponível em `http://localhost:8000`.
 
+O arquivo `.env` é opcional no desenvolvimento local. O projeto carrega variáveis da raiz, mas o repositório não inclui `.env.example`.
+
 ### Configuração opcional de e-mail
 
 O projeto funciona em desenvolvimento mesmo sem `.env`.
 
-- Sem configurar credenciais SMTP, os e-mails de verificação e recuperação de senha são exibidos no terminal/console.
-- Se quiser enviar e-mails reais, crie um arquivo `.env` na raiz do projeto com:
+- No ambiente padrão de desenvolvimento (`puc_encontra.settings.development`), os e-mails de verificação e recuperação de senha são exibidos no terminal/console.
+- Isso acontece porque `development.py` fixa `EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"`.
+- Portanto, definir `EMAIL_HOST_USER` e `EMAIL_HOST_PASSWORD` no `.env` não faz o desenvolvimento passar a enviar e-mails reais por si só.
+- Se quiser preparar credenciais SMTP para produção, crie um arquivo `.env` na raiz do projeto com:
 
 ```env
 EMAIL_HOST_USER=seu-email@gmail.com
 EMAIL_HOST_PASSWORD=sua-senha-ou-app-password
 ```
 
-Também é possível sobrescrever o backend manualmente com `EMAIL_BACKEND`.
+Para testar envio SMTP localmente, altere `EMAIL_BACKEND` em `puc_encontra/settings/development.py`.
 
 ### Ambientes de settings
 
@@ -97,7 +98,9 @@ O `manage.py` usa desenvolvimento por padrão. Em produção, configure `DJANGO_
 
 ### Deploy no vercel
 
-Variáveis mínimas recomendadas:
+O projeto usa `puc_encontra.settings.production` em produção e a Vercel já consegue detectar Django automaticamente. Este repositório não precisa de `vercel.json` para o fluxo básico atual.
+
+Variáveis necessárias em produção:
 
 ```env
 DJANGO_SETTINGS_MODULE=puc_encontra.settings.production
@@ -105,17 +108,24 @@ DJANGO_SECRET_KEY=gere-uma-chave-segura
 DATABASE_URL=postgresql://usuario:senha@host:porta/banco
 DJANGO_ALLOWED_HOSTS=seu-app.up.vercel.app,seu-dominio.com
 DJANGO_CSRF_TRUSTED_ORIGINS=https://seu-app.up.vercel.app,https://seu-dominio.com
+CLOUD_NAME=seu-cloudinary-cloud-name
+CLOUD_API_KEY=sua-cloudinary-api-key
+CLOUD_API_SECRET=sua-cloudinary-api-secret
 ```
 
-Comandos de deploy:
+Variáveis opcionais para envio real de e-mails em produção:
 
-```bash
-python manage.py migrate
-python manage.py collectstatic --noinput
-gunicorn puc_encontra.wsgi --bind 0.0.0.0:$PORT
+```env
+EMAIL_HOST_USER=seu-email@gmail.com
+EMAIL_HOST_PASSWORD=sua-senha-ou-app-password
 ```
 
-Se quiser manter upload de imagens em disco no vercel, monte um volume e aponte `DJANGO_MEDIA_ROOT` para esse caminho. Sem volume, os arquivos enviados pelos usuários são efêmeros.
+Observações de deploy:
+
+- Em produção, os uploads de mídia usam Cloudinary, não disco local.
+- `DATABASE_URL` deve apontar para um PostgreSQL acessível pela Vercel.
+- As migrações do Django precisam ser executadas contra o banco de produção antes ou durante o processo de publicação.
+- Não há configuração de `DJANGO_MEDIA_ROOT` no projeto atual.
 
 ---
 
@@ -161,8 +171,7 @@ Rota: `/login/`
 
 - `Dashboard` em `/dashboard/`
 - Registros pessoais em `/meus-registros/`
-- Consulta pública de perdidos em `/perdidos/`
-- Consulta pública de encontrados em `/encontrados/`
+- Consulta pública de itens em `/itens/`
 - Perfil em `/perfil/`
 
 ### Área do Administrador
