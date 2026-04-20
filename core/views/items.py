@@ -4,8 +4,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from ..access import obter_tipo_usuario, pode_gerenciar_recurso, pode_ver_objeto
 from ..decorators import papel_obrigatorio
-from ..forms import ObjetoForm
-from ..models import Objeto
+from ..forms import EdicaoForm, ObjetoForm
+from ..models import Objeto, SolicitacaoEdicao
 
 
 def redirecionar_erro_visibilidade(requisicao):
@@ -63,19 +63,9 @@ def objeto_detalhe(requisicao, pk):
             status='ativo',
         ).exclude(pk=objeto.pk)[:5]
 
-    solicitacoes = []
-    ja_solicitou = False
-    minha_solicitacao = None
-    if objeto.tipo == 'encontrado':
-        solicitacoes = objeto.solicitacoes.select_related('solicitante').all()
-        if requisicao.user.is_authenticated:
-            minha_solicitacao = objeto.solicitacoes.filter(solicitante=requisicao.user).first()
-            ja_solicitou = minha_solicitacao is not None
-
     perfil_dono = getattr(objeto.usuario, 'perfil', None)
     mostrar_contato = (
-        objeto.tipo == 'perdido'
-        and requisicao.user.is_authenticated
+        requisicao.user.is_authenticated
         and requisicao.user != objeto.usuario
         and objeto.status == 'ativo'
     )
@@ -83,9 +73,6 @@ def objeto_detalhe(requisicao, pk):
     contexto = {
         'objeto': objeto,
         'correspondencias': correspondencias,
-        'solicitacoes': solicitacoes,
-        'ja_solicitou': ja_solicitou,
-        'minha_solicitacao': minha_solicitacao,
         'pode_gerenciar_item': pode_gerenciar_item,
         'pode_editar_ou_excluir': pode_gerenciar_item and objeto.status != 'devolvido',
         'mostrar_contato': mostrar_contato,
@@ -99,6 +86,7 @@ def objeto_detalhe(requisicao, pk):
 @login_required
 def objeto_editar(requisicao, pk):
     objeto = get_object_or_404(Objeto, pk=pk)
+    eh_admin = obter_tipo_usuario(requisicao.user) == 'admin'
 
     if not pode_gerenciar_recurso(requisicao.user, objeto.usuario):
         messages.error(requisicao, 'Você não tem permissão para editar este registro.')
@@ -108,20 +96,51 @@ def objeto_editar(requisicao, pk):
         messages.warning(requisicao, 'Este item não pode mais ser alterado.')
         return redirect('objeto_detail', pk=objeto.pk)
 
+    if not eh_admin and SolicitacaoEdicao.objects.filter(objeto=objeto, status='pendente').exists():
+        messages.warning(requisicao, 'Você já tem uma edição aguardando aprovação para este item.')
+        return redirect('objeto_detail', pk=objeto.pk)
+
+    if eh_admin:
+        if requisicao.method == 'POST':
+            formulario = ObjetoForm(requisicao.POST, requisicao.FILES, instance=objeto)
+            if formulario.is_valid():
+                formulario.save()
+                messages.success(requisicao, 'Item atualizado com sucesso.')
+                return redirect('objeto_detail', pk=objeto.pk)
+        else:
+            formulario = ObjetoForm(instance=objeto)
+        return render(requisicao, 'core/objeto_form.html', {
+            'formulario': formulario,
+            'objeto': objeto,
+            'acao': 'Editar',
+        })
+
+    # Usuário comum — cria solicitação de edição
+    edicao_inicial = {
+        'titulo': objeto.titulo,
+        'descricao': objeto.descricao,
+        'categoria': objeto.categoria,
+        'local': objeto.local,
+        'data_ocorrencia': objeto.data_ocorrencia,
+    }
     if requisicao.method == 'POST':
-        formulario = ObjetoForm(requisicao.POST, requisicao.FILES, instance=objeto)
+        formulario = EdicaoForm(requisicao.POST, requisicao.FILES)
         if formulario.is_valid():
-            formulario.save()
-            messages.success(requisicao, 'Item atualizado com sucesso.')
+            SolicitacaoEdicao.objects.filter(objeto=objeto).exclude(status='pendente').delete()
+            edicao = formulario.save(commit=False)
+            edicao.objeto = objeto
+            edicao.solicitante = requisicao.user
+            edicao.save()
+            messages.success(requisicao, 'Solicitação de edição enviada. Aguarde a aprovação do administrador.')
             return redirect('objeto_detail', pk=objeto.pk)
     else:
-        formulario = ObjetoForm(instance=objeto)
+        formulario = EdicaoForm(initial=edicao_inicial)
 
     return render(requisicao, 'core/objeto_form.html', {
         'formulario': formulario,
         'objeto': objeto,
-        'tipo': objeto.tipo,
-        'acao': 'Editar',
+        'acao': 'Solicitar Edição',
+        'is_edicao_pendente': True,
     })
 
 

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Perfil, Categoria, Local, Objeto, SolicitacaoPosse
+from .models import Perfil, Categoria, Local, Objeto
 
 
 @admin.register(Perfil)
@@ -28,10 +28,3 @@ class ObjetoAdmin(admin.ModelAdmin):
     list_filter = ('tipo', 'status', 'categoria')
     search_fields = ('titulo', 'descricao')
     date_hierarchy = 'data_registro'
-
-
-@admin.register(SolicitacaoPosse)
-class SolicitacaoPosseAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'solicitante', 'status', 'data_solicitacao')
-    list_filter = ('status',)
-    search_fields = ('solicitante__username', 'objeto__titulo')

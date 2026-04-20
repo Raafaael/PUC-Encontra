@@ -60,21 +60,10 @@ urlpatterns = [
     path("itens/<int:pk>/editar/", views.objeto_editar, name="objeto_update"),
     path("itens/<int:pk>/excluir/", views.objeto_excluir, name="objeto_delete"),
     path("itens/<int:pk>/devolver/", views.objeto_marcar_devolvido, name="objeto_devolver"),
-    # Solicitações de Posse
-    path(
-        "solicitacoes/nova/<int:objeto_id>/",
-        views.solicitacao_criar,
-        name="solicitacao_create",
-    ),
-    path("solicitacoes/<int:pk>/", views.solicitacao_detalhe, name="solicitacao_detail"),
-    path(
-        "solicitacoes/<int:pk>/validar/",
-        views.solicitacao_avaliar,
-        name="solicitacao_validar",
-    ),
     # Aprovações (Admin)
     path("aprovacoes/", views.aprovacoes, name="aprovacoes"),
     path("aprovacoes/<int:pk>/", views.aprovar_item, name="aprovar_item"),
+    path("aprovacoes/edicao/<int:pk>/", views.aprovar_edicao, name="aprovar_edicao"),
     # Categorias (Admin)
     path("categorias/", views.categoria_listar, name="categoria_list"),
     path("categorias/nova/", views.categoria_criar, name="categoria_create"),

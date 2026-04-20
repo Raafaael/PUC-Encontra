@@ -125,7 +125,6 @@ class Objeto(models.Model):
     STATUS_CHOICES = [
         ('pendente', 'Pendente de Aprovação'),
         ('ativo', 'Ativo'),
-        ('reivindicado', 'Reivindicado'),
         ('devolvido', 'Devolvido'),
     ]
 
@@ -167,55 +166,50 @@ class Objeto(models.Model):
         return f'{self.titulo} ({self.get_tipo_display()})'
 
 
-class SolicitacaoPosse(models.Model):
-    """Solicitação de posse: usuário reivindica um objeto encontrado."""
-
+class SolicitacaoEdicao(models.Model):
     STATUS_CHOICES = [
         ('pendente', 'Pendente'),
         ('aprovada', 'Aprovada'),
         ('rejeitada', 'Rejeitada'),
     ]
 
+    objeto = models.OneToOneField(
+        Objeto,
+        on_delete=models.CASCADE,
+        related_name='solicitacao_edicao',
+        verbose_name='Objeto',
+    )
     solicitante = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='solicitacoes',
+        related_name='solicitacoes_edicao',
         verbose_name='Solicitante',
     )
-    objeto = models.ForeignKey(
-        Objeto,
-        on_delete=models.CASCADE,
-        related_name='solicitacoes',
-        verbose_name='Objeto encontrado',
-    )
-    objeto_perdido = models.ForeignKey(
-        Objeto,
+    titulo = models.CharField('Título', max_length=200)
+    descricao = models.TextField('Descrição')
+    categoria = models.ForeignKey(
+        Categoria,
         on_delete=models.SET_NULL,
         null=True,
-        blank=True,
-        related_name='solicitacoes_como_perdido',
-        verbose_name='Registro de perda relacionado',
-        help_text='Opcional: vincule ao seu registro de perda, se houver.',
+        verbose_name='Categoria',
     )
-    descricao_comprovacao = models.TextField(
-        'Descrição de comprovação',
-        help_text='Descreva características do objeto que comprovem que é seu.',
+    local = models.ForeignKey(
+        Local,
+        on_delete=models.SET_NULL,
+        null=True,
+        verbose_name='Local',
     )
-    data_solicitacao = models.DateTimeField('Data da solicitação', auto_now_add=True)
+    data_ocorrencia = models.DateField('Data da ocorrência')
+    imagem = models.ImageField('Nova imagem', upload_to='edicoes/', blank=True, null=True)
     status = models.CharField('Status', max_length=10, choices=STATUS_CHOICES, default='pendente')
-    resposta_admin = models.TextField('Resposta do administrador', blank=True)
-    data_resposta = models.DateTimeField('Data da resposta', null=True, blank=True)
+    data_solicitacao = models.DateTimeField('Data da solicitação', auto_now_add=True)
 
     class Meta:
-        verbose_name = 'Solicitação de Posse'
-        verbose_name_plural = 'Solicitações de Posse'
+        verbose_name = 'Solicitação de Edição'
+        verbose_name_plural = 'Solicitações de Edição'
         ordering = ['-data_solicitacao']
-        constraints = [
-            models.UniqueConstraint(
-                fields=['solicitante', 'objeto'],
-                name='unique_solicitante_objeto',
-            ),
-        ]
 
     def __str__(self):
-        return f'Solicitação #{self.pk} - {self.objeto.titulo} ({self.get_status_display()})'
+        return f'Edição de "{self.objeto.titulo}" por {self.solicitante.username}'
+
+

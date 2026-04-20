@@ -139,25 +139,6 @@
 </section>
 {% endif %}
 
-{% if solicitacoes_pendentes %}
-<section class="dashboard-section">
-    <h2>Solicitações Pendentes</h2>
-    <table class="table">
-        <thead><tr><th>Objeto</th><th>Solicitante</th><th>Data</th><th>Ação</th></tr></thead>
-        <tbody>
-            {% for solicitacao in solicitacoes_pendentes %}
-            <tr>
-                <td>{{ solicitacao.objeto.titulo }}</td>
-                <td>{{ solicitacao.solicitante.get_full_name|default:solicitacao.solicitante.username }}</td>
-                <td>{{ solicitacao.data_solicitacao|date:"d/m/Y" }}</td>
-                <td><a href="{% url 'solicitacao_validar' solicitacao.pk %}" class="btn btn-small btn-primary">Validar</a></td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</section>
-{% endif %}
-
 <div class="dashboard-grid">
     <section class="dashboard-section">
         <h2>Perdidos Recentes</h2>

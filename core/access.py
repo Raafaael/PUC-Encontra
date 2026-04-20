@@ -1,6 +1,6 @@
 """Helpers para papéis de usuário e visibilidade de recursos."""
 
-STATUS_PUBLICOS = {'ativo', 'reivindicado', 'devolvido'}
+STATUS_PUBLICOS = {'ativo', 'devolvido'}
 
 
 def obter_tipo_usuario(usuario):

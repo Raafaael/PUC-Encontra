@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from ..decorators import papel_obrigatorio
 from ..forms import AdminCreateForm, AdminUsuarioForm, AprovarItemForm, CategoriaForm, LocalForm
-from ..models import Categoria, Local, Objeto, Perfil, SolicitacaoPosse
+from ..models import Categoria, Local, Objeto, Perfil, SolicitacaoEdicao
 
 
 @login_required
@@ -19,8 +19,8 @@ def aprovacoes(requisicao):
         contexto['perdidos_pendentes'] = Objeto.objects.filter(tipo='perdido', status='pendente')
     if filtro == 'encontrados' or not filtro:
         contexto['encontrados_pendentes'] = Objeto.objects.filter(tipo='encontrado', status='pendente')
-    if filtro == 'solicitacoes' or not filtro:
-        contexto['solicitacoes_pendentes'] = SolicitacaoPosse.objects.filter(status='pendente')
+    if filtro == 'edicoes' or not filtro:
+        contexto['edicoes_pendentes'] = SolicitacaoEdicao.objects.filter(status='pendente').select_related('objeto', 'solicitante')
 
     return render(requisicao, 'core/aprovacoes.html', contexto)
 
@@ -53,6 +53,39 @@ def aprovar_item(requisicao, pk):
         'formulario': formulario,
         'objeto': objeto,
     })
+
+
+@login_required
+@papel_obrigatorio('admin')
+def aprovar_edicao(requisicao, pk):
+    edicao = get_object_or_404(SolicitacaoEdicao, pk=pk)
+
+    if edicao.status != 'pendente':
+        messages.warning(requisicao, 'Esta solicitação já foi avaliada.')
+        return redirect('aprovacoes')
+
+    if requisicao.method == 'POST':
+        acao = requisicao.POST.get('acao')
+        if acao == 'aprovar':
+            objeto = edicao.objeto
+            objeto.titulo = edicao.titulo
+            objeto.descricao = edicao.descricao
+            objeto.categoria = edicao.categoria
+            objeto.local = edicao.local
+            objeto.data_ocorrencia = edicao.data_ocorrencia
+            if edicao.imagem:
+                objeto.imagem = edicao.imagem
+            objeto.save()
+            edicao.status = 'aprovada'
+            edicao.save(update_fields=['status'])
+            messages.success(requisicao, f'Edição de "{objeto.titulo}" aprovada e aplicada.')
+        else:
+            edicao.status = 'rejeitada'
+            edicao.save(update_fields=['status'])
+            messages.info(requisicao, 'Edição rejeitada.')
+        return redirect('aprovacoes')
+
+    return render(requisicao, 'core/aprovar_edicao.html', {'edicao': edicao})
 
 
 @login_required

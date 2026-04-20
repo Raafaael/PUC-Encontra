@@ -13,7 +13,7 @@
         <option value="">Todos os tipos</option>
         <option value="perdidos" {% if filtro == 'perdidos' %}selected{% endif %}>Objetos Perdidos</option>
         <option value="encontrados" {% if filtro == 'encontrados' %}selected{% endif %}>Objetos Encontrados</option>
-        <option value="solicitacoes" {% if filtro == 'solicitacoes' %}selected{% endif %}>Solicitações de Posse</option>
+        <option value="edicoes" {% if filtro == 'edicoes' %}selected{% endif %}>Solicitações de Edição</option>
     </select>
     <button type="submit" class="btn btn-secondary">Filtrar</button>
 </form>
@@ -58,18 +58,18 @@
 </section>
 {% endif %}
 
-{% if solicitacoes_pendentes %}
+{% if edicoes_pendentes %}
 <section class="dashboard-section">
-    <h2>Solicitações de Posse Pendentes</h2>
+    <h2>Solicitações de Edição Pendentes</h2>
     <table class="table">
-        <thead><tr><th>Objeto</th><th>Solicitante</th><th>Data</th><th>Ação</th></tr></thead>
+        <thead><tr><th>Item</th><th>Usuário</th><th>Data</th><th>Ação</th></tr></thead>
         <tbody>
-            {% for solicitacao in solicitacoes_pendentes %}
+            {% for edicao in edicoes_pendentes %}
             <tr>
-                <td>{{ solicitacao.objeto.titulo }}</td>
-                <td>{{ solicitacao.solicitante.get_full_name|default:solicitacao.solicitante.username }}</td>
-                <td>{{ solicitacao.data_solicitacao|date:"d/m/Y" }}</td>
-                <td><a href="{% url 'solicitacao_validar' solicitacao.pk %}" class="btn btn-small btn-primary">Validar</a></td>
+                <td>{{ edicao.objeto.titulo }}</td>
+                <td>{{ edicao.solicitante.get_full_name|default:edicao.solicitante.username }}</td>
+                <td>{{ edicao.data_solicitacao|date:"d/m/Y" }}</td>
+                <td><a href="{% url 'aprovar_edicao' edicao.pk %}" class="btn btn-small btn-primary">Avaliar</a></td>
             </tr>
             {% endfor %}
         </tbody>
@@ -77,7 +77,7 @@
 </section>
 {% endif %}
 
-{% if not perdidos_pendentes and not encontrados_pendentes and not solicitacoes_pendentes %}
+{% if not perdidos_pendentes and not encontrados_pendentes and not edicoes_pendentes %}
 <div class="empty-state-large">
     <p>Nenhuma aprovação pendente. Tudo em dia!</p>
 </div>

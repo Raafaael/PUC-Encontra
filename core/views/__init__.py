@@ -4,6 +4,7 @@ from .admin_views import (
     editar_usuario_admin,
     listar_usuarios_admin,
     aprovacoes,
+    aprovar_edicao,
     aprovar_item,
     categoria_criar,
     categoria_excluir,
@@ -14,13 +15,13 @@ from .admin_views import (
     local_listar,
     local_editar,
 )
-from .claims import solicitacao_criar, solicitacao_detalhe, solicitacao_avaliar
 from .dashboard import dashboard, meus_registros
 from .items import objeto_criar, objeto_detalhe, objeto_editar, objeto_excluir, objeto_marcar_devolvido
 from .public import home, itens_publico
 
 __all__ = [
     'aprovacoes',
+    'aprovar_edicao',
     'aprovar_item',
     'categoria_criar',
     'categoria_excluir',
@@ -44,9 +45,6 @@ __all__ = [
     'objeto_excluir',
     'perfil',
     'registro',
-    'solicitacao_avaliar',
-    'solicitacao_criar',
-    'solicitacao_detalhe',
     'trocar_senha',
     'verificar_email',
 ]

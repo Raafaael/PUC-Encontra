@@ -4,7 +4,7 @@ from django.db.models import Count, Q
 from django.shortcuts import render
 
 from ..access import obter_tipo_usuario
-from ..models import Categoria, Objeto, SolicitacaoPosse
+from ..models import Categoria, Objeto
 
 
 @login_required
@@ -33,7 +33,6 @@ def dashboard(requisicao):
         contexto['total_devolvidos'] = Objeto.objects.filter(status='devolvido').count()
         contexto['total_usuarios'] = User.objects.count()
         contexto['pendentes_aprovacao'] = Objeto.objects.filter(status='pendente').count()
-        contexto['solicitacoes_pendentes'] = SolicitacaoPosse.objects.filter(status='pendente')[:10]
         contexto['perdidos_recentes'] = Objeto.objects.filter(tipo='perdido')[:5]
         contexto['encontrados_recentes'] = Objeto.objects.filter(tipo='encontrado')[:5]
         contexto['stats_categorias'] = Categoria.objects.annotate(
