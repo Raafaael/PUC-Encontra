@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from ..decorators import papel_obrigatorio
 from ..forms import AdminCreateForm, AdminUsuarioForm, AprovarItemForm, CategoriaForm, LocalForm
-from ..models import Categoria, Local, ObjetoEncontrado, ObjetoPerdido, Perfil, SolicitacaoPosse
+from ..models import Categoria, Local, Objeto, Perfil, SolicitacaoPosse
 
 
 @login_required
@@ -16,9 +16,9 @@ def aprovacoes(requisicao):
     contexto = {'filtro': filtro}
 
     if filtro == 'perdidos' or not filtro:
-        contexto['perdidos_pendentes'] = ObjetoPerdido.objects.filter(status='pendente')
+        contexto['perdidos_pendentes'] = Objeto.objects.filter(tipo='perdido', status='pendente')
     if filtro == 'encontrados' or not filtro:
-        contexto['encontrados_pendentes'] = ObjetoEncontrado.objects.filter(status='pendente')
+        contexto['encontrados_pendentes'] = Objeto.objects.filter(tipo='encontrado', status='pendente')
     if filtro == 'solicitacoes' or not filtro:
         contexto['solicitacoes_pendentes'] = SolicitacaoPosse.objects.filter(status='pendente')
 
@@ -27,16 +27,8 @@ def aprovacoes(requisicao):
 
 @login_required
 @papel_obrigatorio('admin')
-def aprovar_item(requisicao, tipo, pk):
-    if tipo == 'perdido':
-        objeto = get_object_or_404(ObjetoPerdido, pk=pk)
-        status_aprovado = 'aberto'
-    elif tipo == 'encontrado':
-        objeto = get_object_or_404(ObjetoEncontrado, pk=pk)
-        status_aprovado = 'disponivel'
-    else:
-        messages.error(requisicao, 'Tipo inválido.')
-        return redirect('aprovacoes')
+def aprovar_item(requisicao, pk):
+    objeto = get_object_or_404(Objeto, pk=pk)
 
     if objeto.status != 'pendente':
         messages.warning(requisicao, 'Este item já foi avaliado.')
@@ -46,7 +38,7 @@ def aprovar_item(requisicao, tipo, pk):
         formulario = AprovarItemForm(requisicao.POST)
         if formulario.is_valid():
             if formulario.cleaned_data['acao'] == 'aprovar':
-                objeto.status = status_aprovado
+                objeto.status = 'ativo'
                 objeto.save(update_fields=['status'])
                 messages.success(requisicao, f'Item "{objeto.titulo}" aprovado e publicado.')
             else:
@@ -60,7 +52,6 @@ def aprovar_item(requisicao, tipo, pk):
     return render(requisicao, 'core/aprovar_item.html', {
         'formulario': formulario,
         'objeto': objeto,
-        'tipo': tipo,
     })
 
 
@@ -68,8 +59,8 @@ def aprovar_item(requisicao, tipo, pk):
 @papel_obrigatorio('admin')
 def categoria_listar(requisicao):
     categorias = Categoria.objects.annotate(
-        num_perdidos=Count('objetos_perdidos'),
-        num_encontrados=Count('objetos_encontrados'),
+        num_perdidos=Count('objetos', filter=Q(objetos__tipo='perdido')),
+        num_encontrados=Count('objetos', filter=Q(objetos__tipo='encontrado')),
     )
     return render(requisicao, 'core/categoria_list.html', {'categorias': categorias})
 
@@ -135,8 +126,8 @@ def categoria_excluir(requisicao, pk):
 @papel_obrigatorio('admin')
 def local_listar(requisicao):
     locais = Local.objects.annotate(
-        num_perdidos=Count('objetos_perdidos'),
-        num_encontrados=Count('objetos_encontrados'),
+        num_perdidos=Count('objetos', filter=Q(objetos__tipo='perdido')),
+        num_encontrados=Count('objetos', filter=Q(objetos__tipo='encontrado')),
     )
     return render(requisicao, 'core/local_list.html', {'locais': locais})
 

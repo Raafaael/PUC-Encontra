@@ -1,7 +1,6 @@
 """Helpers para papéis de usuário e visibilidade de recursos."""
 
-STATUS_PUBLICOS_PERDIDO = {'aberto'}
-STATUS_PUBLICOS_ENCONTRADO = {'disponivel', 'reivindicado'}
+STATUS_PUBLICOS = {'ativo', 'reivindicado', 'devolvido'}
 
 
 def obter_tipo_usuario(usuario):
@@ -26,9 +25,5 @@ def pode_gerenciar_recurso(usuario, dono):
     )
 
 
-def pode_ver_objeto_perdido(usuario, objeto):
-    return pode_gerenciar_recurso(usuario, objeto.usuario) or objeto.status in STATUS_PUBLICOS_PERDIDO
-
-
-def pode_ver_objeto_encontrado(usuario, objeto):
-    return pode_gerenciar_recurso(usuario, objeto.usuario) or objeto.status in STATUS_PUBLICOS_ENCONTRADO
+def pode_ver_objeto(usuario, objeto):
+    return pode_gerenciar_recurso(usuario, objeto.usuario) or objeto.status in STATUS_PUBLICOS

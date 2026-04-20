@@ -114,20 +114,27 @@ class Local(models.Model):
         return ' '.join(partes)
 
 
-class ObjetoPerdido(models.Model):
-    """Registro de um objeto perdido."""
+class Objeto(models.Model):
+    """Registro unificado de objeto perdido ou encontrado."""
+
+    TIPO_CHOICES = [
+        ('perdido', 'Perdido'),
+        ('encontrado', 'Encontrado'),
+    ]
 
     STATUS_CHOICES = [
         ('pendente', 'Pendente de Aprovação'),
-        ('aberto', 'Aberto - Procurando'),
-        ('encontrado', 'Encontrado'),
+        ('ativo', 'Ativo'),
+        ('reivindicado', 'Reivindicado'),
+        ('devolvido', 'Devolvido'),
         ('encerrado', 'Encerrado'),
     ]
 
+    tipo = models.CharField('Tipo', max_length=10, choices=TIPO_CHOICES)
     usuario = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='objetos_perdidos',
+        related_name='objetos',
         verbose_name='Usuário',
     )
     titulo = models.CharField('Título', max_length=200)
@@ -136,77 +143,30 @@ class ObjetoPerdido(models.Model):
         Categoria,
         on_delete=models.SET_NULL,
         null=True,
-        related_name='objetos_perdidos',
+        related_name='objetos',
         verbose_name='Categoria',
     )
-    local_perdido = models.ForeignKey(
+    local = models.ForeignKey(
         Local,
         on_delete=models.SET_NULL,
         null=True,
-        related_name='objetos_perdidos',
-        verbose_name='Local onde perdeu',
+        blank=True,
+        related_name='objetos',
+        verbose_name='Local',
     )
-    data_perda = models.DateField('Data da perda')
+    data_ocorrencia = models.DateField('Data da ocorrência')
     data_registro = models.DateTimeField('Data do registro', auto_now_add=True)
     data_atualizacao = models.DateTimeField('Última atualização', auto_now=True)
     status = models.CharField('Status', max_length=15, choices=STATUS_CHOICES, default='pendente')
-    imagem = models.ImageField('Imagem', upload_to='perdidos/', blank=True, null=True)
+    imagem = models.ImageField('Imagem', upload_to='objetos/', blank=True, null=True)
 
     class Meta:
-        verbose_name = 'Objeto Perdido'
-        verbose_name_plural = 'Objetos Perdidos'
+        verbose_name = 'Objeto'
+        verbose_name_plural = 'Objetos'
         ordering = ['-data_registro']
 
     def __str__(self):
-        return f'{self.titulo} - {self.get_status_display()}'
-
-
-class ObjetoEncontrado(models.Model):
-    """Registro de um objeto encontrado."""
-
-    STATUS_CHOICES = [
-        ('pendente', 'Pendente de Aprovação'),
-        ('disponivel', 'Disponível'),
-        ('reivindicado', 'Reivindicado'),
-        ('devolvido', 'Devolvido ao dono'),
-        ('encerrado', 'Encerrado'),
-    ]
-
-    usuario = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='objetos_encontrados',
-        verbose_name='Encontrado por',
-    )
-    titulo = models.CharField('Título', max_length=200)
-    descricao = models.TextField('Descrição detalhada')
-    categoria = models.ForeignKey(
-        Categoria,
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name='objetos_encontrados',
-        verbose_name='Categoria',
-    )
-    local_encontrado = models.ForeignKey(
-        Local,
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name='objetos_encontrados',
-        verbose_name='Local onde encontrou',
-    )
-    data_encontrado = models.DateField('Data que encontrou')
-    data_registro = models.DateTimeField('Data do registro', auto_now_add=True)
-    data_atualizacao = models.DateTimeField('Última atualização', auto_now=True)
-    status = models.CharField('Status', max_length=15, choices=STATUS_CHOICES, default='pendente')
-    imagem = models.ImageField('Imagem', upload_to='encontrados/', blank=True, null=True)
-
-    class Meta:
-        verbose_name = 'Objeto Encontrado'
-        verbose_name_plural = 'Objetos Encontrados'
-        ordering = ['-data_registro']
-
-    def __str__(self):
-        return f'{self.titulo} - {self.get_status_display()}'
+        return f'{self.titulo} ({self.get_tipo_display()}) - {self.get_status_display()}'
 
 
 class SolicitacaoPosse(models.Model):
@@ -224,18 +184,18 @@ class SolicitacaoPosse(models.Model):
         related_name='solicitacoes',
         verbose_name='Solicitante',
     )
-    objeto_encontrado = models.ForeignKey(
-        ObjetoEncontrado,
+    objeto = models.ForeignKey(
+        Objeto,
         on_delete=models.CASCADE,
         related_name='solicitacoes',
         verbose_name='Objeto encontrado',
     )
     objeto_perdido = models.ForeignKey(
-        ObjetoPerdido,
+        Objeto,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='solicitacoes',
+        related_name='solicitacoes_como_perdido',
         verbose_name='Registro de perda relacionado',
         help_text='Opcional: vincule ao seu registro de perda, se houver.',
     )
@@ -254,10 +214,10 @@ class SolicitacaoPosse(models.Model):
         ordering = ['-data_solicitacao']
         constraints = [
             models.UniqueConstraint(
-                fields=['solicitante', 'objeto_encontrado'],
-                name='unique_solicitante_objeto_encontrado',
+                fields=['solicitante', 'objeto'],
+                name='unique_solicitante_objeto',
             ),
         ]
 
     def __str__(self):
-        return f'Solicitação #{self.pk} - {self.objeto_encontrado.titulo} ({self.get_status_display()})'
+        return f'Solicitação #{self.pk} - {self.objeto.titulo} ({self.get_status_display()})'

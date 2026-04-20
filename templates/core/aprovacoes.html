@@ -26,11 +26,11 @@
         <tbody>
             {% for objeto in perdidos_pendentes %}
             <tr>
-                <td><a href="{% url 'objeto_perdido_detail' objeto.pk %}">{{ objeto.titulo }}</a></td>
+                <td><a href="{% url 'objeto_detail' objeto.pk %}">{{ objeto.titulo }}</a></td>
                 <td>{{ objeto.usuario.get_full_name|default:objeto.usuario.username }}</td>
                 <td>{{ objeto.categoria|default:'-' }}</td>
                 <td>{{ objeto.data_registro|date:"d/m/Y" }}</td>
-                <td><a href="{% url 'aprovar_item' 'perdido' objeto.pk %}" class="btn btn-small btn-primary">Avaliar</a></td>
+                <td><a href="{% url 'aprovar_item' objeto.pk %}" class="btn btn-small btn-primary">Avaliar</a></td>
             </tr>
             {% endfor %}
         </tbody>
@@ -42,15 +42,15 @@
 <section class="dashboard-section">
     <h2>Objetos Encontrados Pendentes</h2>
     <table class="table">
-        <thead><tr><th>Título</th><th>Encontrado por</th><th>Categoria</th><th>Data</th><th>Ação</th></tr></thead>
+        <thead><tr><th>Título</th><th>Registrado por</th><th>Categoria</th><th>Data</th><th>Ação</th></tr></thead>
         <tbody>
             {% for objeto in encontrados_pendentes %}
             <tr>
-                <td><a href="{% url 'objeto_encontrado_detail' objeto.pk %}">{{ objeto.titulo }}</a></td>
+                <td><a href="{% url 'objeto_detail' objeto.pk %}">{{ objeto.titulo }}</a></td>
                 <td>{{ objeto.usuario.get_full_name|default:objeto.usuario.username }}</td>
                 <td>{{ objeto.categoria|default:'-' }}</td>
                 <td>{{ objeto.data_registro|date:"d/m/Y" }}</td>
-                <td><a href="{% url 'aprovar_item' 'encontrado' objeto.pk %}" class="btn btn-small btn-primary">Avaliar</a></td>
+                <td><a href="{% url 'aprovar_item' objeto.pk %}" class="btn btn-small btn-primary">Avaliar</a></td>
             </tr>
             {% endfor %}
         </tbody>
@@ -66,7 +66,7 @@
         <tbody>
             {% for solicitacao in solicitacoes_pendentes %}
             <tr>
-                <td>{{ solicitacao.objeto_encontrado.titulo }}</td>
+                <td>{{ solicitacao.objeto.titulo }}</td>
                 <td>{{ solicitacao.solicitante.get_full_name|default:solicitacao.solicitante.username }}</td>
                 <td>{{ solicitacao.data_solicitacao|date:"d/m/Y" }}</td>
                 <td><a href="{% url 'solicitacao_validar' solicitacao.pk %}" class="btn btn-small btn-primary">Validar</a></td>

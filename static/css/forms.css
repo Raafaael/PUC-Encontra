@@ -1,3 +1,17 @@
+.radio-group { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+.radio-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 600;
+    transition: border-color 0.15s, background 0.15s;
+}
+.radio-option:has(input:checked) { border-color: var(--primary); background: #eef2ff; }
+
 .form-card {
     background: var(--bg-white);
     padding: 30px;

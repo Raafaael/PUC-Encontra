@@ -13,17 +13,24 @@ def tipo_usuario(usuario):
 @register.filter
 def classe_status(status):
     mapa = {
-        'aberto': 'status-aberto',
-        'encontrado': 'status-encontrado',
-        'encerrado': 'status-encerrado',
-        'disponivel': 'status-disponivel',
+        'ativo': 'status-ativo',
+        'pendente': 'status-pendente',
         'reivindicado': 'status-reivindicado',
         'devolvido': 'status-devolvido',
-        'pendente': 'status-pendente',
+        'encerrado': 'status-encerrado',
         'aprovada': 'status-aprovada',
         'rejeitada': 'status-rejeitada',
     }
     return mapa.get(status, '')
+
+
+@register.filter
+def classe_tipo(tipo):
+    mapa = {
+        'perdido': 'tipo-perdido',
+        'encontrado': 'tipo-encontrado',
+    }
+    return mapa.get(tipo, '')
 
 
 @register.simple_tag

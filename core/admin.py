@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Perfil, Categoria, Local, ObjetoPerdido, ObjetoEncontrado, SolicitacaoPosse
+from .models import Perfil, Categoria, Local, Objeto, SolicitacaoPosse
 
 
 @admin.register(Perfil)
@@ -22,18 +22,10 @@ class LocalAdmin(admin.ModelAdmin):
     search_fields = ('nome', 'predio')
 
 
-@admin.register(ObjetoPerdido)
-class ObjetoPerdidoAdmin(admin.ModelAdmin):
-    list_display = ('titulo', 'usuario', 'categoria', 'local_perdido', 'data_perda', 'status')
-    list_filter = ('status', 'categoria')
-    search_fields = ('titulo', 'descricao')
-    date_hierarchy = 'data_registro'
-
-
-@admin.register(ObjetoEncontrado)
-class ObjetoEncontradoAdmin(admin.ModelAdmin):
-    list_display = ('titulo', 'usuario', 'categoria', 'local_encontrado', 'data_encontrado', 'status')
-    list_filter = ('status', 'categoria')
+@admin.register(Objeto)
+class ObjetoAdmin(admin.ModelAdmin):
+    list_display = ('titulo', 'tipo', 'usuario', 'categoria', 'local', 'data_ocorrencia', 'status')
+    list_filter = ('tipo', 'status', 'categoria')
     search_fields = ('titulo', 'descricao')
     date_hierarchy = 'data_registro'
 
@@ -42,4 +34,4 @@ class ObjetoEncontradoAdmin(admin.ModelAdmin):
 class SolicitacaoPosseAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'solicitante', 'status', 'data_solicitacao')
     list_filter = ('status',)
-    search_fields = ('solicitante__username', 'objeto_encontrado__titulo')
+    search_fields = ('solicitante__username', 'objeto__titulo')

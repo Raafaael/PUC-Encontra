@@ -4,18 +4,17 @@
 
 {% block content %}
 <div class="breadcrumb">
-    <a href="{% url 'objeto_encontrado_detail' objeto_encontrado.pk %}">{{ objeto_encontrado.titulo }}</a>
+    <a href="{% url 'objeto_detail' objeto.pk %}">{{ objeto.titulo }}</a>
     &raquo; Reivindicar Posse
 </div>
 
 <h1>Reivindicar Objeto</h1>
 
 <div class="info-box">
-    <h3>Objeto: {{ objeto_encontrado.titulo }}</h3>
-    <p>{{ objeto_encontrado.descricao|truncatewords:30 }}</p>
+    <h3>Objeto: {{ objeto.titulo }}</h3>
+    <p>{{ objeto.descricao|truncatewords:30 }}</p>
     <p class="card-meta">
-        Encontrado em: {{ objeto_encontrado.local_encontrado|default:'Não informado' }}
-        &middot; {{ objeto_encontrado.data_encontrado }}
+        {% if objeto.local %}{{ objeto.local }} &middot; {% endif %}{{ objeto.data_ocorrencia }}
     </p>
 </div>
 
@@ -41,7 +40,7 @@
 
     <div class="form-actions">
         <button type="submit" class="btn btn-primary">Enviar Solicitação</button>
-        <a href="{% url 'objeto_encontrado_detail' objeto_encontrado.pk %}" class="btn btn-secondary">Cancelar</a>
+        <a href="{% url 'objeto_detail' objeto.pk %}" class="btn btn-secondary">Cancelar</a>
     </div>
 </form>
 {% endblock %}
