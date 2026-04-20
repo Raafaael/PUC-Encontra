@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% load core_tags %}
+
+{% block title %}{{ objeto.titulo }} - PUC Encontra{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="{% url 'itens_publico' %}">Itens</a> &raquo; {{ objeto.titulo }}
+</div>
+
+<div class="detail-card">
+    <div class="detail-header">
+        <h1>{{ objeto.titulo }}</h1>
+        <div>
+            <span class="badge {{ objeto.tipo|classe_tipo }}">{{ objeto.get_tipo_display }}</span>
+            {% if objeto.status != 'ativo' %}
+            <span class="card-status {{ objeto.status|classe_status }}">{{ objeto.get_status_display }}</span>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if objeto.imagem %}
+    <div class="detail-image"><img src="{{ objeto.imagem.url }}" alt="{{ objeto.titulo }}"></div>
+    {% endif %}
+
+    <div class="detail-body">
+        <div class="detail-info-grid">
+            <div class="detail-info">
+                <strong>Categoria:</strong> {{ objeto.categoria|default:'Não informada' }}
+            </div>
+            <div class="detail-info">
+                <strong>Local:</strong> {{ objeto.local|default:'Não informado' }}
+            </div>
+            <div class="detail-info">
+                <strong>Data:</strong> {{ objeto.data_ocorrencia }}
+            </div>
+            <div class="detail-info">
+                <strong>Registrado em:</strong> {{ objeto.data_registro|date:"d/m/Y H:i" }}
+            </div>
+            <div class="detail-info">
+                <strong>Registrado por:</strong> {{ objeto.usuario.get_full_name|default:objeto.usuario.username }}
+            </div>
+        </div>
+
+        <div class="detail-description">
+            <h2>Descrição</h2>
+            <p>{{ objeto.descricao|linebreaksbr }}</p>
+        </div>
+
+        {% if mostrar_contato %}
+        <div class="info-box">
+            <h3>Contato para devolução</h3>
+            <p>Se você encontrou este item, use os dados abaixo para combinar a devolução.</p>
+            <p><strong>E-mail:</strong> <a href="mailto:{{ contato_email }}">{{ contato_email }}</a></p>
+            {% if contato_telefone %}
+            <p><strong>Telefone:</strong> <a href="tel:{{ contato_telefone }}">{{ contato_telefone }}</a></p>
+            {% else %}
+            <p><strong>Telefone:</strong> Não informado</p>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="detail-actions">
+        {% if user.is_authenticated %}
+            {% if objeto.tipo == 'encontrado' and objeto.status == 'ativo' and objeto.usuario != user and not ja_solicitou %}
+                <a href="{% url 'solicitacao_create' objeto.pk %}" class="btn btn-primary">Reivindicar este objeto</a>
+            {% elif ja_solicitou %}
+                <a href="{% url 'solicitacao_detail' minha_solicitacao.pk %}" class="btn btn-secondary">Ver minha solicitação</a>
+            {% endif %}
+
+            {% if pode_resolver %}
+            <form method="post" action="{% url 'objeto_resolver' objeto.pk %}" onsubmit="return confirm('Marcar como resolvido? Esta ação não pode ser desfeita.');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Marcar como Resolvido</button>
+            </form>
+            {% endif %}
+
+            {% if tipo == 'admin' and objeto.status == 'ativo' %}
+            <form method="post" action="{% url 'objeto_devolver' objeto.pk %}" onsubmit="return confirm('Confirmar devolução presencial? O item será marcado como devolvido.');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-secondary">Marcar como Devolvido</button>
+            </form>
+            {% endif %}
+
+            {% if pode_editar_ou_excluir %}
+            <a href="{% url 'objeto_update' objeto.pk %}" class="btn btn-secondary">Editar</a>
+            <a href="{% url 'objeto_delete' objeto.pk %}" class="btn btn-danger">Excluir</a>
+            {% endif %}
+        {% else %}
+            {% if objeto.tipo == 'encontrado' and objeto.status == 'ativo' %}
+            <a href="{% url 'login' %}" class="btn btn-primary">Faça login para reivindicar</a>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+
+{% if user.is_authenticated and pode_gerenciar_item and solicitacoes %}
+<section class="dashboard-section">
+    <h2>Solicitações de Posse</h2>
+    <table class="table">
+        <thead><tr><th>Solicitante</th><th>Data</th><th>Status</th><th>Ação</th></tr></thead>
+        <tbody>
+            {% for solicitacao in solicitacoes %}
+            <tr>
+                <td>{{ solicitacao.solicitante.get_full_name|default:solicitacao.solicitante.username }}</td>
+                <td>{{ solicitacao.data_solicitacao|date:"d/m/Y" }}</td>
+                <td><span class="{{ solicitacao.status|classe_status }}">{{ solicitacao.get_status_display }}</span></td>
+                <td>
+                    <a href="{% url 'solicitacao_detail' solicitacao.pk %}" class="btn btn-small btn-secondary">Ver</a>
+                    {% if tipo == 'admin' and solicitacao.status == 'pendente' %}
+                    <a href="{% url 'solicitacao_validar' solicitacao.pk %}" class="btn btn-small btn-primary">Validar</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endif %}
+
+{% if correspondencias %}
+<section class="section-correspondencias">
+    <h2>Possíveis Correspondências</h2>
+    <p>
+        {% if objeto.tipo == 'perdido' %}Objetos encontrados na mesma categoria que podem ser o seu:{% else %}Registros de perda na mesma categoria que podem corresponder a este achado:{% endif %}
+    </p>
+    <div class="cards-grid">
+        {% for correspondencia in correspondencias %}
+        <div class="card card-match">
+            <div class="card-header">
+                <span class="badge badge-categoria">{{ correspondencia.categoria }}</span>
+                <span class="badge {{ correspondencia.tipo|classe_tipo }}">{{ correspondencia.get_tipo_display }}</span>
+            </div>
+            <h3><a href="{% url 'objeto_detail' correspondencia.pk %}">{{ correspondencia.titulo }}</a></h3>
+            <p class="card-desc">{{ correspondencia.descricao|truncatewords:15 }}</p>
+            <p class="card-meta">
+                {% if correspondencia.local %}{{ correspondencia.local }} &middot; {% endif %}{{ correspondencia.data_ocorrencia }}
+            </p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+{% endblock %}
