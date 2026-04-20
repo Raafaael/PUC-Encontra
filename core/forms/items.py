@@ -1,29 +1,22 @@
 from django import forms
 
-from ..models import ObjetoEncontrado, ObjetoPerdido
+from ..models import Objeto
 
 
-class ObjetoPerdidoForm(forms.ModelForm):
-    """Cadastro e edição de objetos perdidos."""
+class ObjetoForm(forms.ModelForm):
+    """Cadastro e edição de objetos (perdidos ou encontrados)."""
 
-    data_perda = forms.DateField(
-        label='Data da perda',
+    tipo = forms.ChoiceField(
+        label='Tipo de solicitação',
+        choices=Objeto.TIPO_CHOICES,
+        widget=forms.RadioSelect,
+    )
+
+    data_ocorrencia = forms.DateField(
+        label='Data da ocorrência',
         widget=forms.DateInput(attrs={'type': 'date'}),
     )
 
     class Meta:
-        model = ObjetoPerdido
-        fields = ['titulo', 'descricao', 'categoria', 'local_perdido', 'data_perda', 'imagem']
-
-
-class ObjetoEncontradoForm(forms.ModelForm):
-    """Cadastro e edição de objetos encontrados."""
-
-    data_encontrado = forms.DateField(
-        label='Data que encontrou',
-        widget=forms.DateInput(attrs={'type': 'date'}),
-    )
-
-    class Meta:
-        model = ObjetoEncontrado
-        fields = ['titulo', 'descricao', 'categoria', 'local_encontrado', 'data_encontrado', 'imagem']
+        model = Objeto
+        fields = ['tipo', 'titulo', 'descricao', 'categoria', 'local', 'data_ocorrencia', 'imagem']

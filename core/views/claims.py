@@ -7,39 +7,39 @@ from django.utils import timezone
 from ..access import obter_tipo_usuario
 from ..decorators import papel_obrigatorio
 from ..forms import SolicitacaoForm, ValidarSolicitacaoForm
-from ..models import ObjetoEncontrado, SolicitacaoPosse
+from ..models import Objeto, SolicitacaoPosse
 
 
 @login_required
-def solicitacao_criar(requisicao, encontrado_id):
-    objeto_encontrado = get_object_or_404(ObjetoEncontrado, pk=encontrado_id)
+def solicitacao_criar(requisicao, objeto_id):
+    objeto = get_object_or_404(Objeto, pk=objeto_id, tipo='encontrado')
 
     if SolicitacaoPosse.objects.filter(
         solicitante=requisicao.user,
-        objeto_encontrado=objeto_encontrado,
+        objeto=objeto,
     ).exists():
         messages.warning(requisicao, 'Você já enviou uma solicitação para este item.')
-        return redirect('objeto_encontrado_detail', pk=encontrado_id)
+        return redirect('objeto_detail', pk=objeto_id)
 
-    if objeto_encontrado.status != 'disponivel':
+    if objeto.status != 'ativo':
         messages.warning(requisicao, 'Este item não está mais disponível para solicitação.')
-        return redirect('objeto_encontrado_detail', pk=encontrado_id)
+        return redirect('objeto_detail', pk=objeto_id)
 
     if requisicao.method == 'POST':
         formulario = SolicitacaoForm(requisicao.POST, usuario=requisicao.user)
         if formulario.is_valid():
             solicitacao = formulario.save(commit=False)
             solicitacao.solicitante = requisicao.user
-            solicitacao.objeto_encontrado = objeto_encontrado
+            solicitacao.objeto = objeto
 
             try:
                 with transaction.atomic():
                     solicitacao.save()
-                    objeto_encontrado.status = 'reivindicado'
-                    objeto_encontrado.save(update_fields=['status'])
+                    objeto.status = 'reivindicado'
+                    objeto.save(update_fields=['status'])
             except IntegrityError:
                 messages.warning(requisicao, 'Você já enviou uma solicitação para este item.')
-                return redirect('objeto_encontrado_detail', pk=encontrado_id)
+                return redirect('objeto_detail', pk=objeto_id)
 
             messages.success(
                 requisicao,
@@ -51,7 +51,7 @@ def solicitacao_criar(requisicao, encontrado_id):
 
     return render(requisicao, 'core/solicitacao_form.html', {
         'formulario': formulario,
-        'objeto_encontrado': objeto_encontrado,
+        'objeto': objeto,
     })
 
 
@@ -63,7 +63,7 @@ def solicitacao_detalhe(requisicao, pk):
     if (
         tipo_usuario != 'admin'
         and solicitacao.solicitante != requisicao.user
-        and solicitacao.objeto_encontrado.usuario != requisicao.user
+        and solicitacao.objeto.usuario != requisicao.user
     ):
         messages.error(requisicao, 'Você não tem permissão para ver esta solicitação.')
         return redirect('meus_registros')
@@ -93,20 +93,20 @@ def solicitacao_avaliar(requisicao, pk):
                 solicitacao.save()
 
                 if solicitacao.status == 'aprovada':
-                    solicitacao.objeto_encontrado.status = 'devolvido'
-                    solicitacao.objeto_encontrado.save(update_fields=['status'])
+                    solicitacao.objeto.status = 'devolvido'
+                    solicitacao.objeto.save(update_fields=['status'])
                     if solicitacao.objeto_perdido:
-                        solicitacao.objeto_perdido.status = 'encontrado'
+                        solicitacao.objeto_perdido.status = 'encerrado'
                         solicitacao.objeto_perdido.save(update_fields=['status'])
                     messages.success(requisicao, 'Solicitação aprovada. Objeto marcado como devolvido.')
                 else:
                     outras_pendentes = SolicitacaoPosse.objects.filter(
-                        objeto_encontrado=solicitacao.objeto_encontrado,
+                        objeto=solicitacao.objeto,
                         status='pendente',
                     ).exclude(pk=pk).exists()
                     if not outras_pendentes:
-                        solicitacao.objeto_encontrado.status = 'disponivel'
-                        solicitacao.objeto_encontrado.save(update_fields=['status'])
+                        solicitacao.objeto.status = 'ativo'
+                        solicitacao.objeto.save(update_fields=['status'])
                     messages.info(requisicao, 'Solicitação rejeitada.')
 
             return redirect('aprovacoes')

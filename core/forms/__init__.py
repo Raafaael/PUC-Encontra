@@ -1,7 +1,7 @@
 from .account import PerfilForm, RegistroForm
 from .admin import AdminCreateForm, AdminUsuarioForm, AprovarItemForm, CategoriaForm, LocalForm
 from .claims import SolicitacaoForm, ValidarSolicitacaoForm
-from .items import ObjetoEncontradoForm, ObjetoPerdidoForm
+from .items import ObjetoForm
 
 __all__ = [
     'AdminCreateForm',
@@ -9,8 +9,7 @@ __all__ = [
     'AprovarItemForm',
     'CategoriaForm',
     'LocalForm',
-    'ObjetoEncontradoForm',
-    'ObjetoPerdidoForm',
+    'ObjetoForm',
     'PerfilForm',
     'RegistroForm',
     'SolicitacaoForm',

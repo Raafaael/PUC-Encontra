@@ -1,6 +1,6 @@
 from django import forms
 
-from ..models import ObjetoPerdido, SolicitacaoPosse
+from ..models import Objeto, SolicitacaoPosse
 
 
 class SolicitacaoForm(forms.ModelForm):
@@ -21,9 +21,10 @@ class SolicitacaoForm(forms.ModelForm):
     def __init__(self, *args, usuario=None, **kwargs):
         super().__init__(*args, **kwargs)
         if usuario:
-            self.fields['objeto_perdido'].queryset = ObjetoPerdido.objects.filter(
+            self.fields['objeto_perdido'].queryset = Objeto.objects.filter(
                 usuario=usuario,
-                status='aberto',
+                tipo='perdido',
+                status='ativo',
             )
         self.fields['objeto_perdido'].required = False
         self.fields['objeto_perdido'].empty_label = '(Nenhum - não registrei a perda)'

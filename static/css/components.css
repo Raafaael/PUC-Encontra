@@ -113,15 +113,33 @@
 
 .card-status,
 .status-pendente { background: #fef9e7; color: #9a7d0a; }
-.status-aberto { background: var(--warning-bg); color: #9a7d0a; }
-.status-encontrado, .status-devolvido, .status-aprovada { background: var(--success-bg); color: #1e8449; }
+.status-ativo { background: var(--info-bg); color: #1f618d; }
+.status-devolvido, .status-aprovada { background: var(--success-bg); color: #1e8449; }
 .status-encerrado { background: #f2f3f4; color: var(--text-light); }
-.status-disponivel { background: var(--info-bg); color: #1f618d; }
 .status-reivindicado { background: var(--warning-bg); color: #9a7d0a; }
 .status-rejeitada { background: var(--danger-bg); color: #c0392b; }
 
-.card-status, .status-aberto, .status-encontrado, .status-encerrado,
-.status-disponivel, .status-reivindicado, .status-devolvido,
+.tipo-perdido { background: #fdebd0; color: #c0392b; }
+.tipo-encontrado { background: #d5f5e3; color: #1e8449; }
+
+.filter-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.filter-tag {
+    display: inline-block;
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    background: #f2f3f4;
+    color: var(--text-light);
+    border: 2px solid transparent;
+    transition: border-color 0.15s;
+}
+.filter-tag:hover { border-color: currentColor; }
+.filter-tag-active { border-color: currentColor; }
+
+.card-status, .status-ativo, .status-encerrado,
+.status-reivindicado, .status-devolvido,
 .status-pendente, .status-aprovada, .status-rejeitada {
     display: inline-block;
     padding: 3px 10px;

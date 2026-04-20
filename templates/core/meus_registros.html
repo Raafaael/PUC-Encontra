@@ -6,47 +6,44 @@
 {% block content %}
 <div class="page-header">
     <h1>Meus Registros</h1>
-    <div>
-        <a href="{% url 'objeto_perdido_create' %}" class="btn btn-primary">Registrar Perda</a>
-        <a href="{% url 'objeto_encontrado_create' %}" class="btn btn-secondary">Registrar Achado</a>
-    </div>
+    <a href="{% url 'objeto_create' %}" class="btn btn-primary">Registrar Solicitação</a>
 </div>
 
 <form method="get" class="filter-bar">
     <select name="tipo_item">
         <option value="">Todos os tipos</option>
-        <option value="perdido" {% if filtro_tipo == 'perdido' %}selected{% endif %}>Objetos Perdidos</option>
-        <option value="encontrado" {% if filtro_tipo == 'encontrado' %}selected{% endif %}>Objetos Encontrados</option>
+        <option value="perdido" {% if filtro_tipo == 'perdido' %}selected{% endif %}>Perdidos</option>
+        <option value="encontrado" {% if filtro_tipo == 'encontrado' %}selected{% endif %}>Encontrados</option>
     </select>
     <select name="status">
         <option value="">Todos os status</option>
         <option value="pendente" {% if filtro_status == 'pendente' %}selected{% endif %}>Pendente</option>
-        <option value="aberto" {% if filtro_status == 'aberto' %}selected{% endif %}>Aberto</option>
-        <option value="disponivel" {% if filtro_status == 'disponivel' %}selected{% endif %}>Disponível</option>
+        <option value="ativo" {% if filtro_status == 'ativo' %}selected{% endif %}>Ativo</option>
         <option value="reivindicado" {% if filtro_status == 'reivindicado' %}selected{% endif %}>Reivindicado</option>
         <option value="devolvido" {% if filtro_status == 'devolvido' %}selected{% endif %}>Devolvido</option>
-        <option value="encontrado" {% if filtro_status == 'encontrado' %}selected{% endif %}>Encontrado</option>
         <option value="encerrado" {% if filtro_status == 'encerrado' %}selected{% endif %}>Encerrado</option>
     </select>
     <button type="submit" class="btn btn-secondary">Filtrar</button>
 </form>
 
-{% if perdidos %}
+{% if objetos %}
 <section class="dashboard-section">
-    <h2>Objetos Perdidos</h2>
     <table class="table">
-        <thead><tr><th>Título</th><th>Categoria</th><th>Data da Perda</th><th>Status</th><th>Ações</th></tr></thead>
+        <thead>
+            <tr><th>Título</th><th>Tipo</th><th>Categoria</th><th>Data</th><th>Status</th><th>Ações</th></tr>
+        </thead>
         <tbody>
-            {% for objeto in perdidos %}
+            {% for objeto in objetos %}
             <tr>
-                <td><a href="{% url 'objeto_perdido_detail' objeto.pk %}">{{ objeto.titulo }}</a></td>
+                <td><a href="{% url 'objeto_detail' objeto.pk %}">{{ objeto.titulo }}</a></td>
+                <td><span class="badge {{ objeto.tipo|classe_tipo }}">{{ objeto.get_tipo_display }}</span></td>
                 <td>{{ objeto.categoria|default:'-' }}</td>
-                <td>{{ objeto.data_perda }}</td>
+                <td>{{ objeto.data_ocorrencia }}</td>
                 <td><span class="{{ objeto.status|classe_status }}">{{ objeto.get_status_display }}</span></td>
                 <td>
-                    {% if objeto.status != 'encontrado' %}
-                    <a href="{% url 'objeto_perdido_update' objeto.pk %}" class="btn btn-small btn-secondary">Editar</a>
-                    <a href="{% url 'objeto_perdido_delete' objeto.pk %}" class="btn btn-small btn-danger">Excluir</a>
+                    {% if objeto.status not in 'devolvido,encerrado' %}
+                    <a href="{% url 'objeto_update' objeto.pk %}" class="btn btn-small btn-secondary">Editar</a>
+                    <a href="{% url 'objeto_delete' objeto.pk %}" class="btn btn-small btn-danger">Excluir</a>
                     {% else %}
                     <span class="text-muted">Sem ações</span>
                     {% endif %}
@@ -56,39 +53,10 @@
         </tbody>
     </table>
 </section>
-{% elif filtro_tipo == 'perdido' %}
-<p class="empty-state">Nenhum objeto perdido registrado.</p>
-{% endif %}
-
-{% if encontrados %}
-<section class="dashboard-section">
-    <h2>Objetos Encontrados</h2>
-    <table class="table">
-        <thead><tr><th>Título</th><th>Categoria</th><th>Data Achado</th><th>Status</th><th>Ações</th></tr></thead>
-        <tbody>
-            {% for objeto in encontrados %}
-            <tr>
-                <td><a href="{% url 'objeto_encontrado_detail' objeto.pk %}">{{ objeto.titulo }}</a></td>
-                <td>{{ objeto.categoria|default:'-' }}</td>
-                <td>{{ objeto.data_encontrado }}</td>
-                <td><span class="{{ objeto.status|classe_status }}">{{ objeto.get_status_display }}</span></td>
-                <td>
-                    <a href="{% url 'objeto_encontrado_update' objeto.pk %}" class="btn btn-small btn-secondary">Editar</a>
-                    <a href="{% url 'objeto_encontrado_delete' objeto.pk %}" class="btn btn-small btn-danger">Excluir</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</section>
-{% elif filtro_tipo == 'encontrado' %}
-<p class="empty-state">Nenhum objeto encontrado registrado.</p>
-{% endif %}
-
-{% if not perdidos and not encontrados and not filtro_tipo %}
+{% else %}
 <div class="empty-state-large">
-    <p>Você ainda não tem nenhum registro no sistema.</p>
-    <a href="{% url 'objeto_perdido_create' %}" class="btn btn-primary">Registrar meu primeiro item</a>
+    <p>Nenhum registro encontrado.</p>
+    <a href="{% url 'objeto_create' %}" class="btn btn-primary">Registrar meu primeiro item</a>
 </div>
 {% endif %}
 {% endblock %}

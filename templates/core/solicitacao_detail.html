@@ -5,7 +5,7 @@
 
 {% block content %}
 <div class="breadcrumb">
-    <a href="{% url 'objeto_encontrado_detail' solicitacao.objeto_encontrado.pk %}">Objeto Encontrado</a> &raquo; Solicitação #{{ solicitacao.pk }}
+    <a href="{% url 'objeto_detail' solicitacao.objeto.pk %}">{{ solicitacao.objeto.titulo }}</a> &raquo; Solicitação #{{ solicitacao.pk }}
 </div>
 
 <div class="detail-card">
@@ -32,17 +32,17 @@
 
         <div class="info-box">
             <h3>Objeto Encontrado</h3>
-            <p><a href="{% url 'objeto_encontrado_detail' solicitacao.objeto_encontrado.pk %}">{{ solicitacao.objeto_encontrado.titulo }}</a></p>
+            <p><a href="{% url 'objeto_detail' solicitacao.objeto.pk %}">{{ solicitacao.objeto.titulo }}</a></p>
             <p class="card-meta">
-                {{ solicitacao.objeto_encontrado.categoria|default:'' }}
-                &middot; {{ solicitacao.objeto_encontrado.local_encontrado|default:'' }}
+                {{ solicitacao.objeto.categoria|default:'' }}
+                {% if solicitacao.objeto.local %}&middot; {{ solicitacao.objeto.local }}{% endif %}
             </p>
         </div>
 
         {% if solicitacao.objeto_perdido %}
         <div class="info-box">
             <h3>Registro de Perda Vinculado</h3>
-            <p><a href="{% url 'objeto_perdido_detail' solicitacao.objeto_perdido.pk %}">{{ solicitacao.objeto_perdido.titulo }}</a></p>
+            <p><a href="{% url 'objeto_detail' solicitacao.objeto_perdido.pk %}">{{ solicitacao.objeto_perdido.titulo }}</a></p>
         </div>
         {% endif %}
 

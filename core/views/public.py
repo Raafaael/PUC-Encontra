@@ -1,7 +1,7 @@
 from django.db.models import Q
 from django.shortcuts import redirect, render
 
-from ..models import Categoria, Local, ObjetoEncontrado, ObjetoPerdido
+from ..models import Categoria, Local, Objeto
 
 
 def home(requisicao):
@@ -9,24 +9,30 @@ def home(requisicao):
         return redirect('dashboard')
 
     contexto = {
-        'total_perdidos': ObjetoPerdido.objects.filter(status='aberto').count(),
-        'total_encontrados': ObjetoEncontrado.objects.filter(status='disponivel').count(),
-        'total_devolvidos': ObjetoEncontrado.objects.filter(status='devolvido').count(),
+        'total_perdidos': Objeto.objects.filter(tipo='perdido', status='ativo').count(),
+        'total_encontrados': Objeto.objects.filter(tipo='encontrado', status='ativo').count(),
+        'total_devolvidos': Objeto.objects.filter(status='devolvido').count(),
     }
     return render(requisicao, 'core/home.html', contexto)
 
 
-def perdidos_publico(requisicao):
-    consulta = ObjetoPerdido.objects.filter(status='aberto')
-
+def itens_publico(requisicao):
+    filtro_tipo = requisicao.GET.get('tipo', '')
     categoria_id = requisicao.GET.get('categoria')
     local_id = requisicao.GET.get('local')
     busca = requisicao.GET.get('q')
 
+    if filtro_tipo == 'devolvido':
+        consulta = Objeto.objects.filter(status='devolvido')
+    elif filtro_tipo in ('perdido', 'encontrado'):
+        consulta = Objeto.objects.filter(tipo=filtro_tipo, status='ativo')
+    else:
+        consulta = Objeto.objects.filter(status='ativo')
+
     if categoria_id:
         consulta = consulta.filter(categoria_id=categoria_id)
     if local_id:
-        consulta = consulta.filter(local_perdido_id=local_id)
+        consulta = consulta.filter(local_id=local_id)
     if busca:
         consulta = consulta.filter(Q(titulo__icontains=busca) | Q(descricao__icontains=busca))
 
@@ -34,35 +40,9 @@ def perdidos_publico(requisicao):
         'objetos': consulta,
         'categorias': Categoria.objects.all(),
         'locais': Local.objects.all(),
+        'filtro_tipo': filtro_tipo,
         'filtro_categoria': categoria_id,
         'filtro_local': local_id,
         'filtro_busca': busca or '',
-        'eh_publico': True,
     }
-    return render(requisicao, 'core/objeto_perdido_list.html', contexto)
-
-
-def encontrados_publico(requisicao):
-    consulta = ObjetoEncontrado.objects.filter(status='disponivel')
-
-    categoria_id = requisicao.GET.get('categoria')
-    local_id = requisicao.GET.get('local')
-    busca = requisicao.GET.get('q')
-
-    if categoria_id:
-        consulta = consulta.filter(categoria_id=categoria_id)
-    if local_id:
-        consulta = consulta.filter(local_encontrado_id=local_id)
-    if busca:
-        consulta = consulta.filter(Q(titulo__icontains=busca) | Q(descricao__icontains=busca))
-
-    contexto = {
-        'objetos': consulta,
-        'categorias': Categoria.objects.all(),
-        'locais': Local.objects.all(),
-        'filtro_categoria': categoria_id,
-        'filtro_local': local_id,
-        'filtro_busca': busca or '',
-        'eh_publico': True,
-    }
-    return render(requisicao, 'core/objeto_encontrado_list.html', contexto)
+    return render(requisicao, 'core/objeto_list.html', contexto)
