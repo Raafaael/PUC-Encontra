@@ -71,23 +71,21 @@ python manage.py runserver
 
 O site ficará disponível em `http://localhost:8000`.
 
-O arquivo `.env` é opcional no desenvolvimento local. O projeto carrega variáveis da raiz, mas o repositório não inclui `.env.example`.
+O arquivo `.env` é opcional no desenvolvimento local.
 
 ### Configuração opcional de e-mail
 
 O projeto funciona em desenvolvimento mesmo sem `.env`.
 
-- No ambiente padrão de desenvolvimento (`puc_encontra.settings.development`), os e-mails de verificação e recuperação de senha são exibidos no terminal/console.
-- Isso acontece porque `development.py` fixa `EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"`.
-- Portanto, definir `EMAIL_HOST_USER` e `EMAIL_HOST_PASSWORD` no `.env` não faz o desenvolvimento passar a enviar e-mails reais por si só.
-- Se quiser preparar credenciais SMTP para produção, crie um arquivo `.env` na raiz do projeto com:
+- Sem configurar `EMAIL_BACKEND` nem credenciais SMTP, os e-mails de verificação e recuperação de senha são exibidos no terminal/console.
+- Se você definir `EMAIL_HOST_USER` e `EMAIL_HOST_PASSWORD` no `.env`, o ambiente de desenvolvimento passa a usar SMTP e tenta enviar e-mails reais.
+- Também é possível forçar outro backend via `EMAIL_BACKEND`.
 
 ```env
 EMAIL_HOST_USER=seu-email@gmail.com
 EMAIL_HOST_PASSWORD=sua-senha-ou-app-password
+EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
 ```
-
-Para testar envio SMTP localmente, altere `EMAIL_BACKEND` em `puc_encontra/settings/development.py`.
 
 ### Ambientes de settings
 
@@ -195,57 +193,5 @@ Rota: `/login/`
 - [x] Upload de imagens
 - [x] Busca e filtros
 - [x] Dashboard por tipo de usuário
-
----
-
-## Estrutura do Projeto
-
-```text
-PUC-Encontra/
-|-- manage.py
-|-- requirements.txt
-|-- puc_encontra/
-|   |-- settings/
-|   |   |-- __init__.py
-|   |   |-- base.py
-|   |   |-- development.py
-|   |   `-- production.py
-|   |-- urls.py
-|   `-- wsgi.py
-|-- core/
-|   |-- admin.py
-|   |-- apps.py
-|   |-- access.py
-|   |-- backends.py
-|   |-- decorators.py
-|   |-- forms/
-|   |   |-- __init__.py
-|   |   |-- account.py
-|   |   |-- admin.py
-|   |   |-- claims.py
-|   |   |-- items.py
-|   |   `-- shared.py
-|   |-- models.py
-|   |-- signals.py
-|   |-- tests/
-|   |-- urls.py
-|   |-- views/
-|   |   |-- account.py
-|   |   |-- admin_views.py
-|   |   |-- claims.py
-|   |   |-- dashboard.py
-|   |   |-- items.py
-|   |   `-- public.py
-|   |-- management/commands/
-|   |-- migrations/
-|   `-- templatetags/
-|-- templates/
-|   |-- base.html
-|   |-- registration/
-|   `-- core/
-|-- static/css/
-|-- media/
-`-- Enunciado/
-```
 
 ---

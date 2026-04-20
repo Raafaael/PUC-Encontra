@@ -13,4 +13,5 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 SERVE_MEDIA_FILES = True
 
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+if not os.getenv("EMAIL_BACKEND") and not (EMAIL_HOST_USER and EMAIL_HOST_PASSWORD):
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"

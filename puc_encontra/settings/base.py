@@ -5,11 +5,13 @@ Configurações base do projeto PUC Encontra.
 import os
 from pathlib import Path
 
+import certifi
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 load_dotenv(BASE_DIR / ".env")
+os.environ.setdefault("SSL_CERT_FILE", certifi.where())
 
 
 ALLOWED_HOSTS = []
@@ -100,7 +102,10 @@ AUTHENTICATION_BACKENDS = [
     "core.backends.EmailOuUsernameBackend",
 ]
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_BACKEND = os.getenv(
+    "EMAIL_BACKEND",
+    "django.core.mail.backends.smtp.EmailBackend",
+)
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
