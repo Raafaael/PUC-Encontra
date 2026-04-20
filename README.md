@@ -77,7 +77,7 @@ O arquivo `.env` é opcional no desenvolvimento local.
 
 O projeto funciona em desenvolvimento mesmo sem `.env`.
 
-### **Para testar o envio de email crie sua propria senha de app em um email pelo gmail.**
+### **Para testar o envio de email localmente crie sua propria senha de app em um email pelo gmail.**
 
 - Sem configurar `EMAIL_BACKEND` nem credenciais SMTP, os e-mails de verificação e recuperação de senha são exibidos no terminal/console.
 - Se você definir `EMAIL_HOST_USER` e `EMAIL_HOST_PASSWORD` no `.env`, o ambiente de desenvolvimento passa a usar SMTP e tenta enviar e-mails reais.
