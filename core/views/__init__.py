@@ -16,7 +16,7 @@ from .admin_views import (
 )
 from .claims import solicitacao_criar, solicitacao_detalhe, solicitacao_avaliar
 from .dashboard import dashboard, meus_registros
-from .items import objeto_criar, objeto_detalhe, objeto_editar, objeto_excluir, objeto_marcar_devolvido, objeto_resolver
+from .items import objeto_criar, objeto_detalhe, objeto_editar, objeto_excluir, objeto_marcar_devolvido
 from .public import home, itens_publico
 
 __all__ = [
@@ -42,7 +42,6 @@ __all__ = [
     'objeto_detalhe',
     'objeto_editar',
     'objeto_excluir',
-    'objeto_resolver',
     'perfil',
     'registro',
     'solicitacao_avaliar',

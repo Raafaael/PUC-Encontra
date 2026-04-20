@@ -69,13 +69,6 @@
                 <a href="{% url 'solicitacao_detail' minha_solicitacao.pk %}" class="btn btn-secondary">Ver minha solicitação</a>
             {% endif %}
 
-            {% if pode_resolver %}
-            <form method="post" action="{% url 'objeto_resolver' objeto.pk %}" onsubmit="return confirm('Marcar como resolvido? Esta ação não pode ser desfeita.');">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-primary">Marcar como Resolvido</button>
-            </form>
-            {% endif %}
-
             {% if tipo == 'admin' and objeto.status == 'ativo' %}
             <form method="post" action="{% url 'objeto_devolver' objeto.pk %}" onsubmit="return confirm('Confirmar devolução presencial? O item será marcado como devolvido.');">
                 {% csrf_token %}

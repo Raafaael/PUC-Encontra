@@ -42,9 +42,9 @@ def aprovar_item(requisicao, pk):
                 objeto.save(update_fields=['status'])
                 messages.success(requisicao, f'Item "{objeto.titulo}" aprovado e publicado.')
             else:
-                objeto.status = 'encerrado'
-                objeto.save(update_fields=['status'])
-                messages.info(requisicao, f'Item "{objeto.titulo}" rejeitado.')
+                titulo = objeto.titulo
+                objeto.delete()
+                messages.info(requisicao, f'Item "{titulo}" rejeitado e removido.')
             return redirect('aprovacoes')
     else:
         formulario = AprovarItemForm()

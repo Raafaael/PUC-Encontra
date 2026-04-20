@@ -95,9 +95,6 @@ def solicitacao_avaliar(requisicao, pk):
                 if solicitacao.status == 'aprovada':
                     solicitacao.objeto.status = 'devolvido'
                     solicitacao.objeto.save(update_fields=['status'])
-                    if solicitacao.objeto_perdido:
-                        solicitacao.objeto_perdido.status = 'encerrado'
-                        solicitacao.objeto_perdido.save(update_fields=['status'])
                     messages.success(requisicao, 'Solicitação aprovada. Objeto marcado como devolvido.')
                 else:
                     outras_pendentes = SolicitacaoPosse.objects.filter(

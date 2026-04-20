@@ -59,7 +59,6 @@ urlpatterns = [
     path("itens/<int:pk>/", views.objeto_detalhe, name="objeto_detail"),
     path("itens/<int:pk>/editar/", views.objeto_editar, name="objeto_update"),
     path("itens/<int:pk>/excluir/", views.objeto_excluir, name="objeto_delete"),
-    path("itens/<int:pk>/resolver/", views.objeto_resolver, name="objeto_resolver"),
     path("itens/<int:pk>/devolver/", views.objeto_marcar_devolvido, name="objeto_devolver"),
     # Solicitações de Posse
     path(

@@ -17,7 +17,6 @@ def classe_status(status):
         'pendente': 'status-pendente',
         'reivindicado': 'status-reivindicado',
         'devolvido': 'status-devolvido',
-        'encerrado': 'status-encerrado',
         'aprovada': 'status-aprovada',
         'rejeitada': 'status-rejeitada',
     }

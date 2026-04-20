@@ -127,7 +127,6 @@ class Objeto(models.Model):
         ('ativo', 'Ativo'),
         ('reivindicado', 'Reivindicado'),
         ('devolvido', 'Devolvido'),
-        ('encerrado', 'Encerrado'),
     ]
 
     tipo = models.CharField('Tipo', max_length=10, choices=TIPO_CHOICES)
@@ -166,7 +165,7 @@ class Objeto(models.Model):
         ordering = ['-data_registro']
 
     def __str__(self):
-        return f'{self.titulo} ({self.get_tipo_display()}) - {self.get_status_display()}'
+        return f'{self.titulo} ({self.get_tipo_display()})'
 
 
 class SolicitacaoPosse(models.Model):

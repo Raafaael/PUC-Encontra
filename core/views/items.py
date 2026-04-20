@@ -87,8 +87,7 @@ def objeto_detalhe(requisicao, pk):
         'ja_solicitou': ja_solicitou,
         'minha_solicitacao': minha_solicitacao,
         'pode_gerenciar_item': pode_gerenciar_item,
-        'pode_resolver': pode_gerenciar_item and objeto.tipo == 'perdido' and objeto.status == 'ativo',
-        'pode_editar_ou_excluir': pode_gerenciar_item and objeto.status not in ('devolvido', 'encerrado'),
+        'pode_editar_ou_excluir': pode_gerenciar_item and objeto.status != 'devolvido',
         'mostrar_contato': mostrar_contato,
         'contato_email': objeto.usuario.email,
         'contato_telefone': perfil_dono.telefone if perfil_dono and perfil_dono.telefone else '',
@@ -105,7 +104,7 @@ def objeto_editar(requisicao, pk):
         messages.error(requisicao, 'Você não tem permissão para editar este registro.')
         return redirect('meus_registros')
 
-    if objeto.status in ('devolvido', 'encerrado'):
+    if objeto.status == 'devolvido':
         messages.warning(requisicao, 'Este item não pode mais ser alterado.')
         return redirect('objeto_detail', pk=objeto.pk)
 
@@ -134,7 +133,7 @@ def objeto_excluir(requisicao, pk):
         messages.error(requisicao, 'Você não tem permissão para excluir este registro.')
         return redirect('meus_registros')
 
-    if objeto.status in ('devolvido', 'encerrado'):
+    if objeto.status == 'devolvido':
         messages.warning(requisicao, 'Este item não pode mais ser excluído.')
         return redirect('objeto_detail', pk=objeto.pk)
 
@@ -166,20 +165,3 @@ def objeto_marcar_devolvido(requisicao, pk):
     return redirect('objeto_detail', pk=objeto.pk)
 
 
-@login_required
-def objeto_resolver(requisicao, pk):
-    objeto = get_object_or_404(Objeto, pk=pk)
-
-    if not pode_gerenciar_recurso(requisicao.user, objeto.usuario):
-        messages.error(requisicao, 'Você não tem permissão para alterar este registro.')
-        return redirect('meus_registros')
-
-    if requisicao.method == 'POST':
-        if objeto.tipo == 'perdido' and objeto.status == 'ativo':
-            objeto.status = 'encerrado'
-            objeto.save(update_fields=['status'])
-            messages.success(requisicao, 'Item marcado como resolvido.')
-        else:
-            messages.warning(requisicao, 'Este item não pode ser marcado como resolvido.')
-
-    return redirect('objeto_detail', pk=objeto.pk)
