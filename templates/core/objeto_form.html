@@ -8,6 +8,10 @@
 <form method="post" enctype="multipart/form-data" class="form-card">
     {% csrf_token %}
 
+    {% if is_edicao_pendente %}
+    <div class="alert alert-warning">As alterações serão enviadas para aprovação do administrador antes de serem aplicadas.</div>
+    {% endif %}
+
     {% if formulario.errors %}
     <div class="alert alert-error">Por favor, corrija os erros abaixo.</div>
     {% endif %}

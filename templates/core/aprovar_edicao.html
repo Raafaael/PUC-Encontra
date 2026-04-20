@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load core_tags %}
+
+{% block title %}Aprovar Edição — PUC Encontra{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="{% url 'aprovacoes' %}">Aprovações</a> &raquo; Solicitação de Edição
+</div>
+
+<div class="page-header">
+    <div>
+        <h1>{{ edicao.objeto.titulo }}</h1>
+        <p class="card-meta">
+            Editado por <strong>{{ edicao.solicitante.get_full_name|default:edicao.solicitante.username }}</strong>
+            &middot; {{ edicao.data_solicitacao|date:"d/m/Y H:i" }}
+        </p>
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        <button name="acao" value="aprovar" class="btn btn-primary" onclick="return confirm('Aplicar esta edição ao item?')">Aprovar edição</button>
+        <button name="acao" value="rejeitar" class="btn btn-danger" onclick="return confirm('Rejeitar esta edição?')">Rejeitar</button>
+        <a href="{% url 'aprovacoes' %}" class="btn btn-secondary">Voltar</a>
+    </form>
+</div>
+
+<div class="detail-card">
+    <table class="table diff-table">
+        <thead>
+            <tr>
+                <th style="width:15%">Campo</th>
+                <th style="width:42%">Versão Atual</th>
+                <th style="width:42%">Versão Proposta</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr {% if edicao.titulo != edicao.objeto.titulo %}class="diff-changed"{% endif %}>
+                <td><strong>Título</strong></td>
+                <td>{{ edicao.objeto.titulo }}</td>
+                <td>{{ edicao.titulo }}</td>
+            </tr>
+            <tr {% if edicao.categoria != edicao.objeto.categoria %}class="diff-changed"{% endif %}>
+                <td><strong>Categoria</strong></td>
+                <td>{{ edicao.objeto.categoria|default:'—' }}</td>
+                <td>{{ edicao.categoria|default:'—' }}</td>
+            </tr>
+            <tr {% if edicao.local != edicao.objeto.local %}class="diff-changed"{% endif %}>
+                <td><strong>Local</strong></td>
+                <td>{{ edicao.objeto.local|default:'—' }}</td>
+                <td>{{ edicao.local|default:'—' }}</td>
+            </tr>
+            <tr {% if edicao.data_ocorrencia != edicao.objeto.data_ocorrencia %}class="diff-changed"{% endif %}>
+                <td><strong>Data</strong></td>
+                <td>{{ edicao.objeto.data_ocorrencia }}</td>
+                <td>{{ edicao.data_ocorrencia }}</td>
+            </tr>
+            <tr {% if edicao.descricao != edicao.objeto.descricao %}class="diff-changed"{% endif %}>
+                <td><strong>Descrição</strong></td>
+                <td>{{ edicao.objeto.descricao|linebreaksbr }}</td>
+                <td>{{ edicao.descricao|linebreaksbr }}</td>
+            </tr>
+            {% if edicao.objeto.imagem or edicao.imagem %}
+            <tr {% if edicao.imagem %}class="diff-changed"{% endif %}>
+                <td><strong>Imagem</strong></td>
+                <td>
+                    {% if edicao.objeto.imagem %}
+                    <img src="{{ edicao.objeto.imagem.url }}" alt="Atual" style="max-width:120px;border-radius:4px;">
+                    {% else %}—{% endif %}
+                </td>
+                <td>
+                    {% if edicao.imagem %}
+                    <img src="{{ edicao.imagem.url }}" alt="Proposta" style="max-width:120px;border-radius:4px;">
+                    {% else %}<span class="text-muted">Sem alteração</span>{% endif %}
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
