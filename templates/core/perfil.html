@@ -54,6 +54,7 @@
         <div class="form-group">
             <label for="id_telefone">Telefone *</label>
             <input type="text" name="telefone" id="id_telefone" required
+                   placeholder="(11) 99999-9999"
                    value="{{ formulario.telefone.value|default:'' }}">
             {% if formulario.telefone.errors %}<span class="form-error">{{ formulario.telefone.errors.0 }}</span>{% endif %}
         </div>

@@ -25,7 +25,7 @@ def montar_cadastro_pendente(formulario):
         'email': formulario.cleaned_data['email'],
         'senha': make_password(formulario.cleaned_data['password1']),
         'matricula': formulario.cleaned_data.get('matricula', ''),
-        'telefone': formulario.cleaned_data['telefone'],
+        'telefone': str(formulario.cleaned_data['telefone']),
         'tipo_cadastro': formulario.cleaned_data.get('tipo_cadastro', 'usuario'),
         'codigo_admin': formulario.cleaned_data.get('codigo_admin', ''),
         'codigo': CodigoVerificacao.gerar_codigo(),

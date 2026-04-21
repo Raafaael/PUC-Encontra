@@ -3,6 +3,7 @@ import random
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 class Perfil(models.Model):
@@ -16,7 +17,7 @@ class Perfil(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='perfil')
     tipo = models.CharField(max_length=15, choices=TIPO_CHOICES, default='usuario')
     matricula = models.CharField('Matrícula', max_length=20, blank=True)
-    telefone = models.CharField('Telefone', max_length=20)
+    telefone = PhoneNumberField('Telefone', blank=True, region='BR')
 
     class Meta:
         verbose_name = 'Perfil'

@@ -1,6 +1,18 @@
 from django import forms
+from django.utils import timezone
 
 from ..models import Objeto, SolicitacaoEdicao
+
+
+def validar_data_nao_futura(data):
+    if not data:
+        return data
+    hoje = timezone.localdate()
+    if data > hoje:
+        raise forms.ValidationError('A data não pode ser no futuro.')
+    if data < hoje.replace(year=hoje.year - 1):
+        raise forms.ValidationError('A data não pode ser anterior a 1 ano atrás.')
+    return data
 
 
 class ObjetoForm(forms.ModelForm):
@@ -18,6 +30,9 @@ class ObjetoForm(forms.ModelForm):
         model = Objeto
         fields = ['tipo', 'titulo', 'descricao', 'categoria', 'local', 'data_ocorrencia', 'imagem']
 
+    def clean_data_ocorrencia(self):
+        return validar_data_nao_futura(self.cleaned_data.get('data_ocorrencia'))
+
 
 class EdicaoForm(forms.ModelForm):
     data_ocorrencia = forms.DateField(
@@ -28,3 +43,6 @@ class EdicaoForm(forms.ModelForm):
     class Meta:
         model = SolicitacaoEdicao
         fields = ['titulo', 'descricao', 'categoria', 'local', 'data_ocorrencia', 'imagem']
+
+    def clean_data_ocorrencia(self):
+        return validar_data_nao_futura(self.cleaned_data.get('data_ocorrencia'))

@@ -24,11 +24,11 @@ def limpar_email_unico_usuario(email, *, excluir_pk_usuario=None):
 
 
 def limpar_campo_unico_perfil(nome_campo, valor, *, excluir_pk_perfil=None, obrigatorio=False):
-    valor = (valor or '').strip()
-    if obrigatorio and not valor:
+    valor_str = (str(valor) if valor else '').strip()
+    if obrigatorio and not valor_str:
         raise forms.ValidationError(ERROS_PERFIL_OBRIGATORIO[nome_campo])
 
-    if valor:
+    if valor_str:
         consulta = Perfil.objects.filter(**{nome_campo: valor})
         if excluir_pk_perfil is not None:
             consulta = consulta.exclude(pk=excluir_pk_perfil)

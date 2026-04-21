@@ -8,3 +8,5 @@ whitenoise>=6.8
 cloudinary>=1.41
 django-cloudinary-storage>=0.3
 certifi>=2024.0
+django-phonenumber-field>=8.0
+phonenumbers>=8.0

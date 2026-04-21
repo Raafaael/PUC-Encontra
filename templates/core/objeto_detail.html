@@ -56,7 +56,7 @@
             <h3>{% if objeto.tipo == 'perdido' %}Contato do dono{% else %}Contato de quem encontrou{% endif %}</h3>
             <p><strong>E-mail:</strong> <a href="mailto:{{ contato_email }}">{{ contato_email }}</a></p>
             {% if contato_telefone %}
-            <p><strong>Telefone:</strong> <a href="tel:{{ contato_telefone }}">{{ contato_telefone }}</a></p>
+            <p><strong>Telefone:</strong> <a href="tel:{{ contato_telefone }}">{{ contato_telefone.as_national }}</a></p>
             {% else %}
             <p><strong>Telefone:</strong> Não informado</p>
             {% endif %}

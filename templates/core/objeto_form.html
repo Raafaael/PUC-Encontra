@@ -50,10 +50,12 @@
         <div class="form-group">
             <label for="id_categoria">Categoria *</label>
             {{ formulario.categoria }}
+            {% if formulario.categoria.errors %}<span class="form-error">{{ formulario.categoria.errors.0 }}</span>{% endif %}
         </div>
         <div class="form-group">
             <label for="id_local">Local *</label>
             {{ formulario.local }}
+            {% if formulario.local.errors %}<span class="form-error">{{ formulario.local.errors.0 }}</span>{% endif %}
         </div>
     </div>
 
@@ -61,6 +63,7 @@
         <div class="form-group">
             <label for="id_data_ocorrencia">Data da ocorrência *</label>
             {{ formulario.data_ocorrencia }}
+            {% if formulario.data_ocorrencia.errors %}<span class="form-error">{{ formulario.data_ocorrencia.errors.0 }}</span>{% endif %}
         </div>
         <div class="form-group">
             <label for="id_imagem">Imagem (opcional)</label>
