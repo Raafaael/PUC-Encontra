@@ -10,7 +10,7 @@ from django.urls import include, path, re_path
 from django.views.static import serve
 
 urlpatterns = [
-    path("django-admin/", admin.site.urls),  # Admin nativo do Django
+    path("admin/", admin.site.urls),  # Admin nativo do Django
     path("", include("core.urls")),  # URLs da aplicação principal
 ]
 
