@@ -11,7 +11,7 @@ class ObjetoForm(forms.ModelForm):
     )
     data_ocorrencia = forms.DateField(
         label='Data da ocorrência',
-        widget=forms.DateInput(attrs={'type': 'date'}),
+        widget=forms.DateInput(attrs={'type': 'date'}, format='%Y-%m-%d'),
     )
 
     class Meta:
@@ -22,7 +22,7 @@ class ObjetoForm(forms.ModelForm):
 class EdicaoForm(forms.ModelForm):
     data_ocorrencia = forms.DateField(
         label='Data da ocorrência',
-        widget=forms.DateInput(attrs={'type': 'date'}),
+        widget=forms.DateInput(attrs={'type': 'date'}, format='%Y-%m-%d'),
     )
 
     class Meta:
