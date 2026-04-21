@@ -199,7 +199,7 @@ Visualize usuários, crie novos administradores e edite dados, tipo e status de 
 - [x] Recuperação de senha por e-mail
 - [x] CRUD de itens (perdidos e encontrados)
 - [x] CRUD de categorias e locais
-- [x] CRUD de usuários (painel admin)
+- [x] CRUD de usuários (painel admin, com o delete sendo a desativacao de ususarios)
 - [x] Fluxo de aprovação de novos itens
 - [x] Fluxo de aprovação de edições com comparação visual
 - [x] Exibição de contato para usuários logados
