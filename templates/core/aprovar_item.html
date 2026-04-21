@@ -11,7 +11,7 @@
 
 <div class="info-box">
     <h3>{{ objeto.titulo }}</h3>
-    <p><strong>Tipo:</strong> {% if tipo == 'perdido' %}Objeto Perdido{% else %}Objeto Encontrado{% endif %}</p>
+    <p><strong>Tipo:</strong> {% if objeto.tipo == 'perdido' %}Objeto Perdido{% else %}Objeto Encontrado{% endif %}</p>
     <p><strong>Registrado por:</strong> {{ objeto.usuario.get_full_name|default:objeto.usuario.username }}</p>
     <p><strong>Categoria:</strong> {{ objeto.categoria|default:'Não informada' }}</p>
     <p><strong>Descrição:</strong></p>

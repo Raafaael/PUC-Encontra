@@ -18,7 +18,8 @@ O **PUC Encontra** é um sistema web de achados e perdidos desenvolvido para a c
 ### Funcionalidades
 
 - Cadastro com verificação de e-mail e validação de telefone
-- CRUD completo de itens (perdidos e encontrados), categorias, locais e usuários
+- CRUD completo de itens (perdidos e encontrados), categorias e locais
+- Gerenciamento administrativo de usuários (listagem, criação de administradores, edição e ativação/desativação)
 - Fluxo de aprovação administrativa para novos itens e edições
 - Exibição de contato (e-mail e telefone) para usuários logados
 - Filtros por tipo (Perdidos / Encontrados / Devolvidos), categoria, local e busca por texto
@@ -74,6 +75,7 @@ python manage.py runserver
 O site ficará disponível em `http://localhost:8000`.
 
 ### Configuração de E-mail
+
 O projeto funciona em desenvolvimento mesmo sem `.env`.
 
 > **Nota:** Para testar o envio de e-mail localmente, crie uma senha de app no Gmail.
@@ -152,11 +154,11 @@ Crie uma conta informando nome, sobrenome, username, e-mail, telefone e senha. U
 
 #### Login (`/login/`)
 
-Aceita username ou e-mail. Caso esqueça a senha, use o link "Esqueci minha senha" para recebê-la por e-mail.
+Aceita username ou e-mail. Caso esqueça a senha, use o link "Esqueci minha senha" para receber instruções de redefinição por e-mail.
 
 #### Itens Públicos (`/itens/`)
 
-Lista todos os itens ativos. Use os filtros de tag (Todos / Perdidos / Encontrados / Devolvidos) ou a barra de busca para encontrar um item específico. Clique em um item para ver os detalhes e o contato de quem registrou (disponível apenas para usuários logados).
+Lista todos os itens públicos publicados no sistema, incluindo itens ativos e devolvidos. Use os filtros de tag (Todos / Perdidos / Encontrados / Devolvidos) ou a barra de busca para encontrar um item específico. Clique em um item para ver os detalhes e o contato de quem registrou (disponível apenas para usuários logados).
 
 #### Registrar um Item (`/itens/novo/`)
 
@@ -186,7 +188,7 @@ CRUD completo de categorias e locais disponíveis no sistema.
 
 #### Usuários (`/admin-painel/usuarios/`)
 
-Visualize, crie e edite usuários. Apenas administradores têm acesso.
+Visualize usuários, crie novos administradores e edite dados, tipo e status de ativação das contas. Apenas administradores têm acesso.
 
 ---
 
@@ -205,3 +207,7 @@ Visualize, crie e edite usuários. Apenas administradores têm acesso.
 - [x] Upload de imagens
 - [x] Correspondências automáticas por categoria
 - [x] Dashboard personalizado por perfil
+
+## O que Não Funcionou
+
+- Nenhuma falha encontrada nas funcionalidades que decidimos desenvolver.

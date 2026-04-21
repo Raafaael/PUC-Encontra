@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 {% load core_tags %}
 
-{% block title %}Itens Perdidos — PUC Encontra{% endblock %}
+{% block title %}Itens Públicos — PUC Encontra{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1>Itens Perdidos</h1>
+    <h1>Itens Públicos</h1>
     {% if user.is_authenticated %}
     <a href="{% url 'objeto_create' %}" class="btn btn-primary">Registrar Solicitação</a>
     {% endif %}

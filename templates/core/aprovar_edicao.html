@@ -18,8 +18,8 @@
     </div>
     <form method="post">
         {% csrf_token %}
-        <button name="acao" value="aprovar" class="btn btn-primary" onclick="return confirm('Aplicar esta edição ao item?')">Aprovar edição</button>
-        <button name="acao" value="rejeitar" class="btn btn-danger" onclick="return confirm('Rejeitar esta edição?')">Rejeitar</button>
+        <button name="acao" value="aprovar" class="btn btn-primary">Aprovar edição</button>
+        <button name="acao" value="rejeitar" class="btn btn-danger">Rejeitar</button>
         <a href="{% url 'aprovacoes' %}" class="btn btn-secondary">Voltar</a>
     </form>
 </div>

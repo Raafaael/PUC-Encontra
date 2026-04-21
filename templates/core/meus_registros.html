@@ -45,7 +45,7 @@
                 <td>{{ objeto.categoria|default:'-' }}</td>
                 <td>{{ objeto.data_ocorrencia }}</td>
                 <td>
-                    {% if objeto.status not in 'devolvido,encerrado' %}
+                    {% if objeto.status != 'devolvido' %}
                     <a href="{% url 'objeto_update' objeto.pk %}" class="btn btn-small btn-secondary">Editar</a>
                     <a href="{% url 'objeto_delete' objeto.pk %}" class="btn btn-small btn-danger">Excluir</a>
                     {% else %}
