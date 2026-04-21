@@ -6,7 +6,7 @@
 <div class="confirm-delete">
     <h1>Desativar Conta</h1>
     <p>Tem certeza que deseja desativar sua conta <strong>{{ user.username }}</strong>?</p>
-    <p class="warning-text">Você perderá o acesso ao sistema. Para reativá-la, entre em contato com o administrador.</p>
+    <p class="warning-text">Você perderá o acesso ao sistema, e suas solicitações pendentes serão canceladas. Para reativá-la, entre em contato com o administrador.</p>
 
     <form method="post">
         {% csrf_token %}

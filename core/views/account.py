@@ -14,6 +14,7 @@ from django.views.decorators.http import require_GET
 
 from ..forms import PerfilForm, RegistroForm
 from ..models import CodigoVerificacao, Perfil
+from ..services import cancelar_solicitacoes_pendentes_usuario
 
 CHAVE_SESSAO_CADASTRO_PENDENTE = 'cadastro_pendente'
 
@@ -224,12 +225,19 @@ def trocar_senha(requisicao):
 @login_required
 def desativar_conta(requisicao):
     if requisicao.method == 'POST':
+        resumo_cancelamento = cancelar_solicitacoes_pendentes_usuario(requisicao.user)
         requisicao.user.is_active = False
         requisicao.user.save(update_fields=['is_active'])
         logout(requisicao)
+        mensagem = 'Sua conta foi desativada. Entre em contato com o administrador para reativá-la.'
+        if any(resumo_cancelamento.values()):
+            mensagem = (
+                'Sua conta foi desativada e suas solicitações pendentes foram canceladas. '
+                'Entre em contato com o administrador para reativá-la.'
+            )
         messages.info(
             requisicao,
-            'Sua conta foi desativada. Entre em contato com o administrador para reativá-la.',
+            mensagem,
         )
         return redirect('home')
 

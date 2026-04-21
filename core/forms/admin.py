@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django import forms
 
 from ..models import Categoria, Local, Perfil
+from ..services import cancelar_solicitacoes_pendentes_usuario
 from .shared import BasePerfilForm, limpar_campo_unico_perfil, limpar_email_unico_usuario
 
 
@@ -40,6 +41,7 @@ class AdminUsuarioForm(BasePerfilForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         usuario = getattr(self.instance, 'user', None)
+        self._usuario_ativo_inicial = usuario.is_active if usuario else None
         if usuario:
             self.fields['is_active'].initial = usuario.is_active
 
@@ -49,6 +51,8 @@ class AdminUsuarioForm(BasePerfilForm):
         if commit:
             perfil.user.save()
             perfil.save()
+            if self._usuario_ativo_inicial and not perfil.user.is_active:
+                cancelar_solicitacoes_pendentes_usuario(perfil.user)
         return perfil
 
 

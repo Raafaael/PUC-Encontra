@@ -102,7 +102,9 @@ def objeto_editar(requisicao, pk):
 
     if eh_admin:
         if requisicao.method == 'POST':
-            formulario = ObjetoForm(requisicao.POST, requisicao.FILES, instance=objeto)
+            dados_formulario = requisicao.POST.copy()
+            dados_formulario.setdefault('tipo', objeto.tipo)
+            formulario = ObjetoForm(dados_formulario, requisicao.FILES, instance=objeto)
             if formulario.is_valid():
                 formulario.save()
                 messages.success(requisicao, 'Item atualizado com sucesso.')
@@ -182,5 +184,4 @@ def objeto_marcar_devolvido(requisicao, pk):
             messages.warning(requisicao, 'Este item não pode ser marcado como devolvido.')
 
     return redirect('objeto_detail', pk=objeto.pk)
-
 
