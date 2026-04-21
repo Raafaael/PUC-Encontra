@@ -1,4 +1,11 @@
-from .account import desativar_conta, perfil, registro, trocar_senha, verificar_email
+from .account import (
+    desativar_conta,
+    logout_usuario,
+    perfil,
+    registro,
+    trocar_senha,
+    verificar_email,
+)
 from .admin_views import (
     criar_usuario_admin,
     editar_usuario_admin,
@@ -38,6 +45,7 @@ __all__ = [
     'local_excluir',
     'local_listar',
     'local_editar',
+    'logout_usuario',
     'meus_registros',
     'objeto_criar',
     'objeto_detalhe',

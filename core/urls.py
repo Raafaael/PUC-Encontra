@@ -15,7 +15,7 @@ urlpatterns = [
         ),
         name="login",
     ),
-    path("logout/", auth_views.LogoutView.as_view(), name="logout"),
+    path("logout/", views.logout_usuario, name="logout"),
     path("perfil/", views.perfil, name="perfil"),
     path("perfil/trocar-senha/", views.trocar_senha, name="trocar_senha"),
     path("perfil/desativar/", views.desativar_conta, name="desativar_conta"),

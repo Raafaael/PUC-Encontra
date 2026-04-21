@@ -10,6 +10,7 @@ from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.shortcuts import redirect, render
 from django.utils import timezone
+from django.views.decorators.http import require_GET
 
 from ..forms import PerfilForm, RegistroForm
 from ..models import CodigoVerificacao, Perfil
@@ -178,6 +179,12 @@ def verificar_email(requisicao):
             'erro': erro,
         },
     )
+
+
+@require_GET
+def logout_usuario(requisicao):
+    logout(requisicao)
+    return redirect('home')
 
 
 @login_required
